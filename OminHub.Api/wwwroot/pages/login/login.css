@@ -1,0 +1,15 @@
+.login-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr);
+  gap:16px;
+  margin-top:10px;
+}
+@media(max-width:800px){
+  .login-grid{
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+.login-column .small{
+  font-size:11px;
+  opacity:0.75;
+}

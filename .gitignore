@@ -1,0 +1,10 @@
+bin/
+obj/
+packages/
+ffmpeg/
+Keys/
+OminHub.Api/wwwroot/uploads/
+*.mp4
+*.ts
+*.m3u8
+.vs/

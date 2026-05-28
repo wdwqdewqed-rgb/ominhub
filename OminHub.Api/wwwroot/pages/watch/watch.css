@@ -1,0 +1,154 @@
+.watch-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+.watch-player {
+  width: 100%;
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.75);
+}
+
+
+.watch-title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #fff;
+  word-break: break-word;
+}
+
+.watch-title {
+  font-size: 20px !important;
+  line-height: 1.3;
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+@media (min-width: 992px) {
+  .watch-layout {
+    grid-template-columns: 2.5fr 1fr;
+  }
+}
+
+.aside-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.comments-section{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,0.12);
+}
+
+.comment-form{
+  margin-bottom:12px;
+}
+.comment-form textarea{
+  box-sizing: border-box;
+  width:100%;
+  min-height:70px;
+  padding:8px 10px;
+  border-radius:12px;
+  border:none;
+  background:rgba(255,255,255,0.07);
+  color:#fff;
+  resize:vertical;
+  font-size:12px;
+}
+
+/* Columna lateral - Videos relacionados */
+.watch-related-col {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  align-self: flex-start;
+
+  position: sticky;
+  top: 70px;
+
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+
+  z-index: 100;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .watch-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .watch-related-col {
+    order: -1;
+    margin-bottom: 30px;
+    position: static;
+    max-height: none;
+  }
+}
+
+
+/* 5. SCROLLBAR PERSONALIZADO PARA LA COLUMNA LATERAL */
+.watch-related-col::-webkit-scrollbar {
+  width: 6px;
+}
+
+
+.watch-related-col::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.watch-related-col::-webkit-scrollbar-thumb {
+  background: rgba(255, 153, 0, 0.3);
+  border-radius: 3px;
+}
+
+.watch-related-col::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 153, 0, 0.5);
+}
+
+/* 12. ASEGURAR QUE TODO EL CONTENIDO SEA VISIBLE */
+.watch-main-col > *,
+.watch-related-col > * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .watch-related-col {
+    position: static;
+    height: auto;
+    max-height: 600px;
+    order: -1;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .watch-related-col {
+    max-height: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .watch-related-col {
+    max-height: 400px;
+  }
+}
+
+

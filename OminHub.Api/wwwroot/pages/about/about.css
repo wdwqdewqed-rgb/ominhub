@@ -1,0 +1,270 @@
+.about-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  overflow: visible;
+}
+
+/* Layout más compacto para el about */
+.about-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.hero-content {
+  width: 100%;
+}
+
+.hero-content h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  background: linear-gradient(45deg, #ff9900, #ff4f5a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-description {
+  font-size: 16px;
+  line-height: 1.7;
+  opacity: 0.9;
+  margin-bottom: 30px;
+  max-width: 800px;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+}
+
+.hero-stat {
+  text-align: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.hero-stat:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 153, 0, 0.3);
+}
+
+.hero-stat .stat-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ff9900;
+  margin-bottom: 5px;
+}
+.hero-stat .stat-label {
+  font-size: 13px;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.hero-visual {
+  text-align: center;
+  padding: 30px;
+  background: rgba(255, 153, 0, 0.1);
+  border-radius: 15px;
+  border: 2px dashed rgba(255, 153, 0, 0.3);
+  min-width: 200px;
+}
+
+.visual-badge {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.hero-visual p {
+  font-weight: 600;
+  color: #ff9900;
+}
+
+/* Grids dentro del about - CORREGIDO */
+.about-mission-vision,
+.values-grid,
+.team-grid,
+.compliance-grid,
+.contact-grid,
+.locations-grid,
+.tech-items,
+.responsibility-initiatives,
+.exercise-methods,
+.cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 20px !important;
+  margin: 20px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.final-legal {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.final-cta {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 30px 0;
+}
+
+.final-content h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  background: linear-gradient(45deg, #ff9900, #ff4f5a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.final-content p {
+  font-size: 18px;
+  max-width: 700px;
+  margin: 0 auto 30px;
+  opacity: 0.9;
+  line-height: 1.7;
+}
+/* Final Message */
+.about-final-message {
+  background: linear-gradient(135deg, rgba(22, 8, 56, 0.95), rgba(12, 4, 36, 0.95));
+  padding: 50px;
+  border-radius: 25px;
+  margin: 50px 0;
+  text-align: center;
+  border: 2px solid rgba(255, 153, 0, 0.3);
+}
+
+.location-note {
+  font-size: 12px;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.location {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid #ff9900;
+}
+
+.location h4 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.location p {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 5px;
+}
+
+.locations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+
+.office-locations {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+  }
+  
+  .hero-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .about-mission-vision,
+  .values-grid,
+  .team-grid,
+  .compliance-grid,
+  .responsibility-initiatives,
+  .contact-grid,
+  .locations-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .timeline::before {
+    left: 20px;
+  }
+  
+  .timeline-date {
+    width: 40px;
+    font-size: 12px;
+  }
+  
+  .timeline-item::before {
+    left: 37px;
+  }
+  
+  .timeline-content {
+    margin-left: 20px;
+  }
+  
+  .team-member {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .member-avatar {
+    margin-bottom: 15px;
+  }
+  
+  .initiative {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .final-cta {
+    flex-direction: column;
+  }
+  
+  .final-cta .nav-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-stats,
+  .team-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .tech-items {
+    grid-template-columns: 1fr;
+  }
+  
+  .about-technology,
+  .about-responsibility {
+    padding: 25px 20px;
+  }
+}

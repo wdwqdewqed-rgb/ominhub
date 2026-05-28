@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+  <section class="section">
+    <h1 class="section-title" data-translate="Featured videos">Featured videos</h1>
+    <p class="section-subtitle"
+      data-translate="Scroll or change page to explore more.">Scroll or change page to explore more.</p>
+    <div id="home-grid" class="video-grid"></div>
+    <div id="home-pagination" class="pagination"></div>
+  </section>
+  <script>
+    
+    const API_BASE = "http://localhost:5000";
+    
+    /////////////////////////////////////
+    //Logica demo//
+    /////////////////////////////////////    
+    const DEMO_VIDEOS = Array.from({ length: 17 }, (_, i) => ({
+      id: i + 1,
+      title: "Demo Video #" + (i + 1),
+      thumbnailUrl: "/uploads/test.jpg",
+      duration: (8 + i) + ":" + String((i * 7) % 60).padStart(2, "0"),
+      views: 10000 + i * 3211,
+      categories: [
+        "Category " + ((i % 5) + 1),
+        "Extra Cat A",
+        "Extra Cat B",
+        "Extra Cat C",
+        "Extra Cat D"
+      ],
+      tags: [
+        "tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7"
+      ]
+    }));
+    /////////////////////////////////////
+    //Logica demo//
+    /////////////////////////////////////
+
+    let tooltipEl = null;
+
+    function showTooltip(target, html) {
+      if (!tooltipEl) {
+        tooltipEl = document.createElement("div");
+        tooltipEl.className = "smart-tooltip";
+        document.body.appendChild(tooltipEl);
+      }
+
+      tooltipEl.innerHTML = html;
+
+      const rect = target.getBoundingClientRect();
+
+      tooltipEl.style.left = rect.left + "px";
+      tooltipEl.style.top = rect.bottom + 8 + "px";
+
+      tooltipEl.classList.add("visible");
+    }
+
+    function hideTooltip() {
+      if (tooltipEl) {
+        tooltipEl.classList.remove("visible");
+      }
+    }
+
+    document.addEventListener("mouseover", (e) => {
+      const el = e.target.closest("[data-tooltip]");
+      if (!el) return;
+
+      showTooltip(el, el.dataset.tooltip);
+    });
+
+    document.addEventListener("mouseout", (e) => {
+      if (e.target.closest("[data-tooltip]")) {
+        hideTooltip();
+      }
+    });
+
+
+    function buildMetaSummary(categories, views) {
+      if (!categories || categories.length === 0)
+        return formatViews(views) + " views";
+
+      const visible = categories.slice(0, 2);
+      const hidden = categories.length - visible.length;
+
+      let html = visible.map(c => escapeHtml(c)).join(" · ");
+
+      if (hidden > 0) {
+        const rest = categories.slice(2).map(escapeHtml).join("<br>");
+        html += ` · <span class="meta-more" data-tooltip="${rest}">+${hidden} categories</span>`;
+      }
+
+      html += " · " + formatViews(views) + " views";
+      return html;
+    }
+
+
+    function renderSmartChips(list, maxVisible = 3) {
+      const visible = list.slice(0, maxVisible);
+      const hidden = list.length - visible.length;
+
+      const chips = visible
+        .map(t => `<span class="video-tag">${escapeHtml(t)}</span>`)
+        .join("");
+
+      if (hidden > 0) {
+        const rest = list.slice(maxVisible).map(escapeHtml).join("<br>");
+        return chips +
+          `<span class="video-tag more" data-tooltip="${rest}">+${hidden}</span>`;
+      }
+
+      return chips;
+    }
+
+    function mapApiVideoToCardModel(v) {
+      return {
+        id: v.id,
+        title: v.title,
+        thumb: API_BASE + v.thumbnailUrl,
+        duration: v.duration ?? "00:00",
+        views: v.views ?? 0,
+        categories: v.categories ?? [],   // 👈 clave
+        tags: v.tags ?? []
+      };
+    }
+
+
+
+    const STORE_KEYS = {
+      favorites: "ominhub_favorites_v1",
+      history: "ominhub_history_v1",
+      uploaded: "ominhub_uploaded_v1",
+      carousel: "ominhub_carousel_v1",
+    };
+
+    function getStored(key, fallback) {
+      try {
+        const raw = window.localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function isFavorite(id) {
+      const favs = getStored(STORE_KEYS.favorites, []);
+      return favs.includes(String(id));
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatViews(v) {
+      const num = typeof v === "number" ? v : Number(v);
+      if (!isFinite(num)) return "0";
+      if (num >= 1_000_000)
+        return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+      if (num >= 1_000) return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+      return String(num);
+    }
+
+    const BASE_PATH = (window.OMINHUB_BASE_PATH || ".").replace(/\/+$/, "");
+
+    function createVideoCard(video, options) {
+      options = options || {};
+      const wrapper = document.createElement("article");
+      wrapper.className = "video-card";
+      const watchHref =
+        resolveHref("watch") + "?id=" + encodeURIComponent(video.id);
+
+      wrapper.innerHTML = [
+        '<div class="video-thumb-wrapper">',
+        '  <img class="video-thumb" src="' +
+        video.thumb +
+        '" alt="' +
+        escapeHtml(video.title) +
+        '">',
+        '  <div class="video-duration">' + video.duration + "</div>",
+        "</div>",
+        '<div class="video-body">',
+        '  <div class="video-title">' + escapeHtml(video.title) + "</div>",
+        '  <div class="video-meta">' +
+        buildMetaSummary(video.categories, video.views) +
+        "</div>",
+
+        '  <div class="video-tags">' +
+        renderSmartChips(video.tags, 3) +
+        "</div>",
+
+        '  <div class="video-actions">',
+        '    <button class="btn-pill" type="button">Watch</button>',
+        '    <span class="favorite-indicator" title="Add to favorites">&#9825;</span>',
+        "  </div>",
+        "</div>",
+      ].join("");
+
+      wrapper.addEventListener("click", function (e) {
+        const isButton =
+          e.target.closest("button") ||
+          e.target.classList.contains("favorite-indicator");
+        if (e.target.classList.contains("favorite-indicator")) {
+          e.stopPropagation();
+          toggleFavorite(video.id, e.target);
+          return;
+        }
+        if (isButton && e.target.classList.contains("btn-pill")) {
+          window.location.href = watchHref;
+          return;
+        }
+        window.location.href = watchHref;
+      });
+
+      const favEl = wrapper.querySelector(".favorite-indicator");
+      if (favEl && isFavorite(video.id)) {
+        favEl.textContent = "♥";
+      }
+
+      return wrapper;
+    }
+
+    /*const DEFAULT_CAROUSEL_IMAGES = [
+      BASE_PATH + "/assets/thumbs/t1.jpg",
+      BASE_PATH + "/assets/thumbs/t2.jpg",
+      BASE_PATH + "/assets/thumbs/t3.jpg",
+      BASE_PATH + "/assets/thumbs/t4.jpg",
+      BASE_PATH + "/assets/thumbs/t5.jpg",
+      BASE_PATH + "/assets/thumbs/t6.jpg",
+    ];
+    const VIDEO_SRC = BASE_PATH + "/assets/videos/sample.mp4";
+    const CATEGORIES = [
+      "Recommended",
+      "Trending",
+      "Gaming",
+      "Music",
+      "Tech",
+      "Lifestyle",
+    ];
+    const TAGS = [
+      "4K",
+      "60fps",
+      "Atmospheric",
+      "Study",
+      "Relax",
+      "Deep Focus",
+      "Loop",
+    ];
+
+    const VIDEOS = (function buildVideos() {
+      const list = [];
+      let idCounter = 1;
+      for (let c = 0; c < CATEGORIES.length; c++) {
+        const cat = CATEGORIES[c];
+        for (let i = 1; i <= 12; i++) {
+          const thumb =
+            DEFAULT_CAROUSEL_IMAGES[
+            (idCounter - 1) % DEFAULT_CAROUSEL_IMAGES.length
+            ];
+          const durationMin = 8 + ((i * (c + 1)) % 25);
+          const durationSec = (i * 7) % 60;
+          const views = 4200 * idCounter + 13500;
+          list.push({
+            id: String(idCounter),
+            title: cat + " session #" + i,
+            category: cat,
+            duration: durationMin + ":" + String(durationSec).padStart(2, "0"),
+            views: views,
+            thumb: thumb,
+            src: VIDEO_SRC,
+            tags: [TAGS[(i + c) % TAGS.length], TAGS[(i + c + 2) % TAGS.length]],
+            channelName: "Channel " + c,
+            channelAvatar: "https://i.pravatar.cc/40?u=" + idCounter,
+            subscribers: 1000 * c + 2500,
+            likes: Math.floor(views / 100),
+            dislikes: Math.floor(views / 1000),
+            comments: [
+              {
+                author: "User1",
+                text: "Great video!",
+                avatar: "https://i.pravatar.cc/40?u=101",
+              },
+              {
+                author: "User2",
+                text: "I love this channel.",
+                avatar: "https://i.pravatar.cc/40?u=102",
+              },
+            ],
+          });
+          idCounter++;
+        }
+      }
+      return list;
+    })();*/
+
+    /*function setupPagination(gridEl, paginationEl, items, perPage) {
+      let currentPage = 1;
+      const totalPages = Math.max(1, Math.ceil(items.length / perPage));
+
+      function renderPage(page) {
+        currentPage = Math.min(Math.max(1, page), totalPages);
+        const start = (currentPage - 1) * perPage;
+        const currentItems = items.slice(start, start + perPage);
+
+        gridEl.innerHTML = "";
+        currentItems.forEach((v) => gridEl.appendChild(createVideoCard(v)));
+
+        paginationEl.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        const prev = document.createElement("button");
+        prev.textContent = "Prev";
+        prev.disabled = currentPage === 1;
+        prev.addEventListener("click", () => renderPage(currentPage - 1));
+        paginationEl.appendChild(prev);
+
+        for (let p = 1; p <= totalPages; p++) {
+          const btn = document.createElement("button");
+          btn.textContent = String(p);
+          if (p === currentPage) btn.classList.add("active");
+          btn.addEventListener("click", () => renderPage(p));
+          paginationEl.appendChild(btn);
+        }
+
+        const next = document.createElement("button");
+        next.textContent = "Next";
+        next.disabled = currentPage === totalPages;
+        next.addEventListener("click", () => renderPage(currentPage + 1));
+        paginationEl.appendChild(next);
+      }
+
+      renderPage(1);
+    }*/
+
+    function renderPagination(current, total) {
+      pag.innerHTML = "";
+
+      if (total <= 1) return;
+
+      const prev = document.createElement("button");
+      prev.textContent = "Prev";
+      prev.disabled = current === 1;
+      prev.onclick = () => loadFeatured(current - 1);
+      pag.appendChild(prev);
+
+      for (let i = 1; i <= total; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === current) btn.classList.add("active");
+        btn.onclick = () => loadFeatured(i);
+        pag.appendChild(btn);
+      }
+
+      const next = document.createElement("button");
+      next.textContent = "Next";
+      next.disabled = current === total;
+      next.onclick = () => loadFeatured(current + 1);
+      pag.appendChild(next);
+    }
+
+
+
+    async function loadFeatured(page = 1) {
+      grid.innerHTML = "<div class='loading'>Loading...</div>";
+
+      try {
+        const res = await fetch(
+          API_BASE + `/api/system/featured?page=${page}&pageSize=12`
+        );
+
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+
+        renderFromData(data, page);
+
+      } catch {
+
+        /////////////////////////////////////
+        //Logica real//
+        /////////////////////////////////////
+        /*grid.innerHTML = "<div class='error'>Failed to load videos</div>";*/
+        /////////////////////////////////////
+        //Logica real//
+        /////////////////////////////////////
+        
+        
+        /////////////////////////////////////
+        //Logica demo//
+        /////////////////////////////////////
+        const pageSize = 12;
+        const totalPages = Math.ceil(DEMO_VIDEOS.length / pageSize);
+
+        const start = (page - 1) * pageSize;
+        const items = DEMO_VIDEOS.slice(start, start + pageSize);
+
+        const data = {
+          items,
+          totalPages
+        };
+
+        renderFromData(data, page);
+        /////////////////////////////////////
+        //Logica demo//
+        /////////////////////////////////////
+      }
+    }
+    function renderFromData(data, page) {
+      grid.innerHTML = "";
+
+      data.items
+        .map(mapApiVideoToCardModel)
+        .forEach(v => grid.appendChild(createVideoCard(v)));
+
+      renderPagination(page, data.totalPages);
+    }
+
+    const grid = document.getElementById("home-grid");
+    const pag = document.getElementById("home-pagination");
+
+    loadFeatured(1);
+
+    
+    /*const allVideos = [...VIDEOS];
+    setupPagination(grid, pag, allVideos, 12);*/
+
+
+    function resolveHref(pageKey) {
+      switch (pageKey) {
+        case "home":
+          return BASE_PATH + "/index.html";
+        case "search":
+          return BASE_PATH + "/pages/search/index.html";
+        case "categories":
+          return BASE_PATH + "/pages/categories/index.html";
+        case "favorites":
+          return BASE_PATH + "/pages/favorites/index.html";
+        case "history":
+          return BASE_PATH + "/pages/history/index.html";
+        case "playlist":
+          return BASE_PATH + "/pages/playlist/index.html";
+        case "channel":
+          return BASE_PATH + "/pages/channel/index.html";
+        case "creator-identity":
+          return BASE_PATH + "/pages/creator-identity/index.html";
+        case "creator-people":
+          return BASE_PATH + "/pages/creator-people/index.html";
+        case "creator-monetization":
+          return BASE_PATH + "/pages/creator-monetization/index.html";
+        case "tags":
+          return BASE_PATH + "/pages/tags/index.html";
+        case "admin":
+          return BASE_PATH + "/pages/admin/index.html";
+        case "login":
+          return BASE_PATH + "/pages/login/index.html";
+        case "register":
+          return BASE_PATH + "/pages/register/index.html";
+        case "profile":
+          return BASE_PATH + "/pages/profile/index.html";
+        case "watch":
+          return BASE_PATH + "/watch.html";
+        default:
+          return null;
+      }
+    }
+
+  </script>
+</body>
+
+</html>

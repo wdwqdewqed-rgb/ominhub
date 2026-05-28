@@ -1,0 +1,93 @@
+.form-field{
+  margin-bottom:10px;
+}
+.form-field label{
+  display:block;
+  font-size:12px;
+  margin-bottom:4px;
+}
+.form-field input{
+  box-sizing: border-box;
+  width:100%;
+  border-radius:999px;
+  border:none;
+  padding:8px 11px;
+  background:rgba(255,255,255,0.07);
+  color:#fff;
+}
+/* === SELECT (coherente con los inputs redondos) === */
+.form-field select{
+  box-sizing: border-box;
+  width:100%;
+  border-radius:999px;
+  border:none;
+  padding:8px 11px;
+  background:rgba(255,255,255,0.07);
+  color:#fefbff;
+  font-size:13px;
+  cursor:pointer;
+  outline:none;
+  appearance:none;
+
+  /* Flecha personalizada */
+  background-image:
+    linear-gradient(45deg, transparent 50%, #ff9900 50%),
+    linear-gradient(135deg, #ff9900 50%, transparent 50%),
+    linear-gradient(to right, rgba(255,255,255,0.12), rgba(255,255,255,0.12));
+  background-position:
+    calc(100% - 18px) calc(50% - 4px),
+    calc(100% - 12px) calc(50% - 4px),
+    0 0;
+  background-size:
+    6px 6px,
+    6px 6px,
+    100% 100%;
+  background-repeat:no-repeat;
+}
+
+.form-field select:hover{
+  background:rgba(255,255,255,0.10);
+}
+
+.form-field select:focus{
+  box-shadow:0 0 0 2px rgba(255,153,0,0.5);
+  background:rgba(255,255,255,0.10);
+}
+
+/* === MENÚ DESPLEGABLE OSCURO === */
+/* ✔ Compatible con Chrome, Edge, Opera */
+.form-field select option{
+  background-color:#1a0028;     /* gris violáceo acorde al sitio */
+  color:#fefbff;                 /* mismo color de texto */
+  padding:6px 10px;
+}
+
+/* ✔ Mejora al pasar encima (solo Chrome/Edge) */
+.form-field select option:hover{
+  background:#ff9900;
+  color:#000;
+}
+
+
+.form-field select:hover{
+  background:rgba(255,255,255,0.10);
+}
+
+.form-field select:focus{
+  box-shadow:0 0 0 2px rgba(255,153,0,0.65);
+  background:rgba(255,255,255,0.10);
+}
+
+.form-footer{
+  font-size:11px;
+  margin-top:10px;
+  opacity:0.8;
+}
+.form-footer a{
+  color:#ff9900;
+}
+
+.form-footer.tiny{
+  font-size:10px;
+  opacity:0.7;
+}

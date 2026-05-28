@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <section class="section upload-block">
+    <h1 class="section-title">Creator studio · Upload</h1>
+    <p class="section-subtitle">
+      Upload new content, choose visibility and categorize your videos.
+    </p>
+
+    <div class="creator-grid">
+      <div class="form-card creator-main-card">
+        <div class="creator-card-header">
+          <div>
+            <div class="badge badge-live">Creator workspace</div>
+            <h1>Upload a new video</h1>
+            <p>
+              Provide clear titles and descriptions. Select categories and tags.
+            </p>
+          </div>
+
+          <div class="creator-meta-chip">
+            <span class="creator-avatar-initial">${user.username ? user.username.charAt(0).toUpperCase() : "C"
+      }</span>
+            <div>
+              <div class="creator-meta-label">Signed in as</div>
+              <div class="creator-meta-value">${user.username}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="creator-two-col">
+          <div class="creator-two-col-main">
+            <div class="form-field">
+              <label for="up-title">Title</label>
+              <input id="up-title" type="text" placeholder="Forest walk in 4K" />
+            </div>
+
+            <div class="form-field">
+              <label for="up-description">Description</label>
+              <textarea id="up-description" class="textarea"
+                placeholder="A relaxing walk through a forest..."></textarea>
+            </div>
+
+            <div class="form-field">
+              <label>Categories <span id="cat-count">(0/30)</span></label>
+              <div id="cat-selector"></div>
+            </div>
+
+            <div class="form-field">
+              <label>Tags <span id="tag-count">(0/30)</span></label>
+              <div id="tag-selector"></div>
+            </div>
+
+            <div class="form-field">
+              <label for="up-collab">Visibility</label>
+              <select id="up-visibility">
+                <option value="public">Public</option>
+                <option value="unlisted">Unlisted</option>
+                <option value="private">Private</option>
+              </select>
+              <div class="cover-upload-help">
+                Choose who can access this video. Public videos are visible to everyone on the platform.
+                Unlisted videos are only accessible to users with the direct link.
+                Private videos are restricted to you and explicitly authorized collaborators.
+              </div>
+
+
+            </div>
+
+          </div>
+
+          <div class="creator-two-col-side">
+            <div class="form-field">
+              <label for="up-video">Video file</label>
+
+              <div class="custom-file-wrapper">
+                <input id="up-video" type="file" accept="video/*" />
+                <label for="up-video" class="custom-file-label">Select video file</label>
+                <span id="up-video-name" class="custom-file-name">No file selected</span>
+              </div>
+
+            </div>
+
+            <div class="form-field">
+              <label>Cover images <span class="hint">(up to 5)</span></label>
+
+              <div class="cover-upload-block">
+                <div class="cover-upload-grid" id="cover-grid">
+                  <div class="cover-slot empty" data-index="0">1</div>
+                  <div class="cover-slot empty" data-index="1">2</div>
+                  <div class="cover-slot empty" data-index="2">3</div>
+                  <div class="cover-slot empty" data-index="3">4</div>
+                  <div class="cover-slot empty" data-index="4">5</div>
+                </div>
+
+
+                <div class="cover-upload-help">
+                  Upload up to 5 images to be used as video covers or thumbnails.
+                  <br />
+                  The platform may periodically rotate these images to identify which performs best.
+                  <br />
+                  Recommended size: 1280×720 (16:9)
+                </div>
+
+              </div>
+            </div>
+
+
+            <div class="form-field">
+              <label>Collaborators</label>
+
+              <div class="collab-selector">
+                <select id="up-collab">
+                  <option value="" disabled selected>Select a collaborator</option>
+                </select>
+
+                <div id="collab-chips" class="chip-container"></div>
+              </div>
+
+              <div class="cover-upload-help">
+                All individuals who appear in this video, whether partially or fully, must be listed as collaborators.
+                Failure to disclose all participants may result in content review delays or removal.
+              </div>
+            </div>
+
+
+            <button class="nav-button" type="button" id="add-collab-btn">
+              Add another collaborator
+            </button>
+          </div>
+        </div>
+
+        <div class="form-field terms-field">
+          <label class="checkbox-label">
+            <input type="checkbox" id="up-terms" />
+            <span class="terms-text">
+              I accept the
+              <a href="#" class="terms-link">terms and conditions</a>
+              and
+              <a href="#" class="terms-link">declare all information provided is true</a>.
+            </span>
+          </label>
+        </div>
+
+        <div class="creator-actions-row">
+          <button class="nav-button" type="button" id="up-btn">Upload video</button>
+        </div>
+
+        <div class="form-footer" id="up-info"></div>
+      </div>
+    </div>
+
+    <h2 class="section-title">My videos</h2>
+    <div id="my-videos" class="video-grid"></div>
+  </section>
+    
+    <script>
+
+        function renderMyVideos() {
+      const uploadedVideos = getStored(
+        STORE_KEYS.uploaded || "ominhub_uploaded_v1",
+        []
+      );
+
+      const list = uploadedVideos.filter(
+        (v) => !v.channelName || v.channelName === user.username
+      );
+
+      myVideosContainer.innerHTML = "";
+
+      if (!list.length) {
+        myVideosContainer.innerHTML =
+          '<div class="empty-state">You have not uploaded any videos yet.</div>';
+        return;
+      }
+
+      list.forEach((v) => {
+        const video = Object.assign({}, v);
+        if (!video.src) video.src = VIDEO_SRC;
+        myVideosContainer.appendChild(createVideoCard(video));
+      });
+    }
+
+    renderMyVideos();
+
+    </script>
+</body>
+</html>

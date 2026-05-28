@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../../css/style_old_two.css">
+</head>
+
+<body>
+  <div id="main-content">
+
+  </div>
+  <script>
+    const API_BASE = "http://localhost:5000";
+    const BASE_PATH = (window.OMINHUB_BASE_PATH || ".").replace(/\/+$/, "");
+
+    const VIDEO_SRC = BASE_PATH + "/assets/videos/sample.mp4";
+
+    const main = document.getElementById("main-content");
+
+    const DEFAULT_CAROUSEL_IMAGES = [
+      BASE_PATH + "/assets/thumbs/t1.jpg",
+      BASE_PATH + "/assets/thumbs/t2.jpg",
+      BASE_PATH + "/assets/thumbs/t3.jpg",
+      BASE_PATH + "/assets/thumbs/t4.jpg",
+      BASE_PATH + "/assets/thumbs/t5.jpg",
+      BASE_PATH + "/assets/thumbs/t6.jpg",
+    ];
+
+    const CATEGORIES = [
+      "Recommended",
+      "Trending",
+      "Gaming",
+      "Music",
+      "Tech",
+      "Lifestyle",
+    ];
+    const TAGS = [
+      "4K",
+      "60fps",
+      "Atmospheric",
+      "Study",
+      "Relax",
+      "Deep Focus",
+      "Loop",
+    ];
+
+    const SESSION_USER_KEY = "ominhub_user";
+
+    const STORE_KEYS = {
+      favorites: "ominhub_favorites_v1",
+      history: "ominhub_history_v1",
+      uploaded: "ominhub_uploaded_v1",
+      carousel: "ominhub_carousel_v1",
+    };
+
+
+
+    function getSessionUser() {
+      const raw = localStorage.getItem(SESSION_USER_KEY);
+      if (!raw) return null;
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function getStored(key, fallback) {
+      try {
+        const raw = window.localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function setStored(key, value) {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) { }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatViews(v) {
+      const num = typeof v === "number" ? v : Number(v);
+      if (!isFinite(num)) return "0";
+      if (num >= 1_000_000)
+        return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+      if (num >= 1_000) return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+      return String(num);
+    }
+
+    function pushHistory(videoId) {
+      const history = getStored(STORE_KEYS.history, []);
+      const now = new Date().toISOString();
+      const filtered = history.filter((h) => h.id !== String(videoId));
+      filtered.unshift({ id: String(videoId), at: now });
+      const trimmed = filtered.slice(0, 40);
+      setStored(STORE_KEYS.history, trimmed);
+    }
+
+
+    function getCurrentVideoIdFromLocation() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    function getVideoById(id) {
+      return VIDEOS.find((v) => v.id === String(id));
+    }
+
+    const VIDEOS = (function buildVideos() {
+      const list = [];
+      let idCounter = 1;
+      for (let c = 0; c < CATEGORIES.length; c++) {
+        const cat = CATEGORIES[c];
+        for (let i = 1; i <= 12; i++) {
+          const thumb =
+            DEFAULT_CAROUSEL_IMAGES[
+            (idCounter - 1) % DEFAULT_CAROUSEL_IMAGES.length
+            ];
+          const durationMin = 8 + ((i * (c + 1)) % 25);
+          const durationSec = (i * 7) % 60;
+          const views = 4200 * idCounter + 13500;
+          list.push({
+            id: String(idCounter),
+            title: cat + " session #" + i,
+            category: cat,
+            duration: durationMin + ":" + String(durationSec).padStart(2, "0"),
+            views: views,
+            thumb: thumb,
+            src: VIDEO_SRC,
+            tags: [TAGS[(i + c) % TAGS.length], TAGS[(i + c + 2) % TAGS.length]],
+            channelName: "Channel " + c,
+            channelAvatar: "https://i.pravatar.cc/40?u=" + idCounter,
+            subscribers: 1000 * c + 2500,
+            likes: Math.floor(views / 100),
+            dislikes: Math.floor(views / 1000),
+            comments: [
+              {
+                author: "User1",
+                text: "Great video!",
+                avatar: "https://i.pravatar.cc/40?u=101",
+              },
+              {
+                author: "User2",
+                text: "I love this channel.",
+                avatar: "https://i.pravatar.cc/40?u=102",
+              },
+            ],
+          });
+          idCounter++;
+        }
+      }
+      return list;
+    })();
+
+
+
+    function renderWatch(main) {
+      const id = getCurrentVideoIdFromLocation();
+      const video = id ? getVideoById(id) : null;
+      const currentUser = getSessionUser();
+
+      if (!video) {
+        main.innerHTML = `
+      <section class="section">
+        <div class="empty-state" style="text-align: center; padding: 60px 20px;">
+          <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">🎬</div>
+          <h2 style="margin: 0 0 15px 0; color: #fff;">Selecciona un video</h2>
+          <p style="margin: 0 0 30px 0; color: rgba(255,255,255,0.7); max-width: 500px; margin: 0 auto 30px;">
+            Elige un video desde el Inicio, Categorías o Búsqueda para comenzar a ver.
+          </p>
+          <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="${resolveHref('home')}" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+              <span>🏠</span> Ir al Inicio
+            </a>
+            <a href="${resolveHref('categories')}" class="btn-outline" style="display: inline-flex; align-items: center; gap: 8px;">
+              <span>📂</span> Explorar Categorías
+            </a>
+          </div>
+        </div>
+      </section>
+    `;
+        return;
+      }
+
+      pushHistory(video.id);
+
+      // Verificar si el usuario ya está suscrito a este canal
+      const isSubscribed = currentUser?.subscriptions?.includes(video.channelId) || false;
+
+      // CORRECCIÓN: Manejar tags de forma segura
+      const tagsHtml = (() => {
+        if (!video.tags) return '';
+
+        // Si tags es un string
+        if (typeof video.tags === 'string') {
+          if (!video.tags.trim()) return '';
+          return `
+        <div class="video-tags">
+          ${video.tags.split(',').map(tag => `
+            <span class="tag">${escapeHtml(tag.trim())}</span>
+          `).join('')}
+        </div>
+      `;
+        }
+
+        // Si tags es un array
+        if (Array.isArray(video.tags)) {
+          if (video.tags.length === 0) return '';
+          return `
+        <div class="video-tags">
+          ${video.tags.map(tag => `
+            <span class="tag">${escapeHtml(typeof tag === 'string' ? tag.trim() : String(tag))}</span>
+          `).join('')}
+        </div>
+      `;
+        }
+
+        return '';
+      })();
+
+      main.innerHTML = `
+    <section class="section watch-layout">
+      <!-- Columna principal del video -->
+      <div class="watch-main-col">
+        <!-- Reproductor de video -->
+              <h1 class="watch-title">${escapeHtml(video.title)}</h1>
+        <div class="watch-player-wrapper">
+          <video controls autoplay playsinline class="watch-player" poster="${video.thumbnail || video.src}">
+            <source src="${video.src}" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+          </video>
+          <div class="player-controls-overlay">
+            <div class="player-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <div class="time-display">
+                <span class="current-time">0:00</span> / <span class="total-time">${video.duration || '0:00'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del video -->
+        <div class="video-info-container">
+          <div class="container-options">
+            <div class="related-video-stats">
+              <span class="stat">${formatViews(video.views)} vistas</span>
+              <span class="stat-divider">•</span>
+              <span class="stat">${video.uploadDate || 'Hace 2 días'}</span>
+            </div>
+
+
+            <div class="video-actions-section">
+              <div class="like-dislike-container">
+                <button class="action-btn like-btn" id="like-btn">
+                  <span class="action-icon">👍</span>
+                  <span class="action-count" id="like-count">${formatViews(video.likes)}</span>
+                </button>
+                <div class="divider"></div>
+                <button class="action-btn dislike-btn" id="dislike-btn">
+                  <span class="action-icon">👎</span>
+                  <span class="action-count" id="dislike-count">${formatViews(video.dislikes || 0)}</span>
+                </button>
+              </div>
+              
+              <button class="action-btn" id="save-btn" title="Guardar en favoritos">
+                <span class="action-icon">📁</span>
+                <span class="action-text">Guardar</span>
+              </button>
+              
+              <button class="action-btn" id="share-btn" title="Compartir video">
+                <span class="action-icon">📤</span>
+                <span class="action-text">Compartir</span>
+              </button>
+              
+              <button class="action-btn" id="more-actions-btn" title="Más acciones">
+                <span class="action-icon">⋯</span>
+              </button>
+            </div>
+          </div>
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+          <!-- Barra de acciones -->
+          <div class="watch-actions-bar">
+            <!-- Información del canal -->
+            <div class="channel-info-section">
+              <div class="channel-avatar-wrapper" id="go-to-channel-btn" style="cursor: pointer;">
+                <img src="${video.channelAvatar}" alt="${escapeHtml(video.channelName)}" class="channel-avatar">
+                ${video.channelVerified ? '<span class="verified-badge" title="Canal verificado">✓</span>' : ''}
+              </div>
+              <div class="channel-details">
+                <div class="channel-name">${escapeHtml(video.channelName)}</div>
+                <div class="channel-subs">${formatViews(video.subscribers || 0)} suscriptores</div>
+              </div>
+              <div class="channel-actions">
+                <button class="subscribe-btn ${isSubscribed ? 'subscribed' : ''}" id="subscribe-btn">
+                  <span class="subscribe-icon">${isSubscribed ? '✓' : '🔔'}</span>
+                  <span class="subscribe-text">${isSubscribed ? 'Suscrito' : 'Suscribirse'}</span>
+                </button>
+                <button class="icon-btn" id="bell-btn" title="Activar notificaciones">
+                  <span>🔔</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Acciones del video -->
+            
+          </div>
+
+          <!-- Descripción del video -->
+          <div class="profile-nav">
+            <button class="profile-nav-item active" data-tab="videos">
+              <span class="nav-icon">🎬</span>
+              <span class="nav-text">Videos</span>
+            </button>
+            <button class="profile-nav-item" data-tab="description">
+              <span class="nav-icon">🎬</span>
+              <span class="nav-text">Descripción</span>
+            </button>
+            <button class="profile-nav-item" data-tab="comments">
+              <span class="nav-icon">🎬</span>
+              <span class="nav-text">Comentarios</span>
+            </button>
+          </div>
+
+          <div class="tab-content" id="description-tab">
+            <div class="video-description-section">
+              <div class="description-header">
+                <h3>Descripción</h3>
+                <button class="show-more-btn" id="show-description-btn">Mostrar más</button>
+              </div>
+              <div class="description-content" id="video-description">
+                <p>${escapeHtml(video.description || 'No hay descripción disponible para este video.')}</p>
+                ${tagsHtml}
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección de comentarios -->
+          <div class="tab-content" id="comments-tab">
+            <div class="comments-section">
+              <div class="comments-header">
+                <h2>
+                  <span class="comments-title">Comentarios</span>
+                  <span class="comments-count" id="comment-count">${video.comments.length}</span>
+                </h2>
+                <div class="sort-comments">
+                  <select class="sort-select" id="sort-comments">
+                    <option value="recent">Más recientes</option>
+                    <option value="popular">Más populares</option>
+                    <option value="oldest">Más antiguos</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Formulario para comentar -->
+              ${currentUser ? `
+                <div class="comment-form-container">
+                  <div class="comment-form-avatar">
+                    <img src="${currentUser.avatar || 'https://i.pravatar.cc/40?u=' + currentUser.name}" 
+                        alt="Tu avatar" class="user-avatar">
+                  </div>
+                  <div class="comment-form-content">
+                    <textarea id="comment-input" placeholder="Añade un comentario público..." 
+                              rows="2"></textarea>
+                    <div class="comment-form-actions">
+                      <button class="btn-outline" id="cancel-comment">Cancelar</button>
+                      <button class="btn-primary" id="comment-btn">Comentar</button>
+                    </div>
+                  </div>
+                </div>
+              ` : `
+                <div class="login-to-comment">
+                  <p>Inicia sesión para comentar</p>
+                  <a href="${resolveHref('login')}" class="btn-text">Iniciar sesión</a>
+                </div>
+              `}
+
+              <!-- Lista de comentarios -->
+              <div id="comment-list" class="comment-list">
+                <!-- Los comentarios se cargarán aquí -->
+              </div>
+
+              ${video.comments.length > 5 ? `
+                <div class="load-more-comments">
+                  <button class="btn-outline" id="load-more-comments-btn">
+                    <span>Mostrar más comentarios</span>
+                    <span class="icon">↓</span>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Columna lateral (videos relacionados) -->
+     <div class="watch-related-col">
+  <div class="related-videos-header">
+    <h2 class="aside-heading">
+  <button class="refresh-related" id="refresh-related-btn" title="Actualizar sugerencias">
+    <span>🔄</span>
+  </button>
+  <span id="related-title">Relacionados</span>
+</h2>
+
+    
+  </div>
+
+  <div class="related-videos-filters">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="related">Relacionados</button>
+      <button class="filter-tab" data-filter="same-channel">Mismo canal</button>
+      <button class="filter-tab" data-filter="trending">Tendencia</button>
+    </div>
+  </div>
+
+  <div class="related-videos-scroll-area"> <!-- NUEVO CONTENEDOR -->
+    <div class="related-videos-content"> <!-- CONTENIDO DE VIDEOS -->
+      <div id="watch-related" class="related-videos-grid">
+        <!-- Los videos relacionados se cargarán aquí -->
+      </div>
+    </div>
+  </div>
+
+  <div class="related-videos-footer">
+    <p class="small-text">Sugerencias basadas en tu actividad de visualización</p>
+  </div>
+</div>
+    </section>
+  `;
+
+      // Inicializar funcionalidades
+      initializeWatchPage(video, currentUser);
+    }
+
+    function initializeWatchPage(video, currentUser) {
+      // 1. Cargar videos relacionados
+      loadRelatedVideos(video);
+
+      initializeTabs();
+
+      // 2. Cargar comentarios
+      renderCommentsEnhanced(video.comments, document.getElementById('comment-list'));
+
+      // 3. Configurar eventos
+      setupWatchEvents(video, currentUser);
+
+      // 4. Configurar controles del reproductor
+      setupVideoPlayer();
+    }
+
+    function loadRelatedVideos(video) {
+      const relatedContainer = document.getElementById('watch-related');
+      if (!relatedContainer) return;
+
+      // Filtrar videos relacionados por categoría y canal
+      const relatedByCategory = VIDEOS.filter(v =>
+        v.category === video.category && v.id !== video.id
+      ).slice(0, 6);
+
+      const sameChannel = VIDEOS.filter(v =>
+        v.channelId === video.channelId && v.id !== video.id
+      ).slice(0, 3);
+
+      const trending = VIDEOS.sort((a, b) => b.views - a.views)
+        .filter(v => v.id !== video.id)
+        .slice(0, 3);
+
+      // Mostrar videos relacionados por categoría inicialmente
+      relatedContainer.innerHTML = relatedByCategory.map(v => createEnhancedVideoCard(v)).join('');
+
+      // Configurar filtros
+      const titleEl = document.getElementById('related-title');
+const tabsContainer = document.querySelector('.filter-tabs');
+
+const VIEWS = {
+  'related': {
+    label: 'Relacionados',
+    data: relatedByCategory
+  },
+  'same-channel': {
+    label: 'Mismo canal',
+    data: sameChannel
+  },
+  'trending': {
+    label: 'Tendencia',
+    data: trending
+  }
+};
+
+let currentView = 'related';
+
+function renderView(viewKey) {
+  currentView = viewKey;
+
+  // Cambiar título
+  titleEl.textContent = VIEWS[viewKey].label;
+
+  // Renderizar videos
+  relatedContainer.innerHTML =
+    VIEWS[viewKey].data.map(v => createEnhancedVideoCard(v)).join('');
+
+  // Reconstruir botones (excluyendo el activo)
+  tabsContainer.innerHTML = Object.keys(VIEWS)
+    .filter(k => k !== viewKey)
+    .map(k => `
+      <button class="filter-tab" data-filter="${k}">
+        ${VIEWS[k].label}
+      </button>
+    `).join('');
+
+  // Reasignar eventos a los nuevos botones
+  tabsContainer.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      renderView(btn.dataset.filter);
+    });
+  });
+}
+
+// Inicializar primera vista
+renderView('related');
+
+
+      // Botón de actualizar
+      const refreshBtn = document.getElementById('refresh-related-btn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+          // Simular actualización con shuffle
+          const shuffled = [...relatedByCategory].sort(() => Math.random() - 0.5);
+          relatedContainer.innerHTML = shuffled.map(v => createEnhancedVideoCard(v)).join('');
+          showNotification('Sugerencias actualizadas', 'info');
+        });
+      }
+    }
+
+    function createEnhancedVideoCard(video) {
+      const duration = video.duration || '0:00';
+      const uploadTime = video.uploadDate || 'Hace 2 días';
+
+      return `
+    <div class="related-video-card" data-video-id="${video.id}">
+      <a href="${resolveHref('watch')}?id=${video.id}" class="video-link">
+        <div class="related-video-thumb">
+          <img src="${video.thumbnail || video.src}" alt="${escapeHtml(video.title)}" 
+               class="related-thumb-image">
+          <div class="video-duration">${duration}</div>
+          ${video.featured ? '<div class="featured-badge">Destacado</div>' : ''}
+        </div>
+        <div class="related-video-info">
+          <h3 class="related-video-title" title="${escapeHtml(video.title)}">
+            ${escapeHtml(video.title.length > 50 ? video.title.substring(0, 50) + '...' : video.title)}
+          </h3>
+          <div class="related-channel-info">
+            <img src="${video.channelAvatar}" alt="${escapeHtml(video.channelName)}" 
+                 class="related-channel-avatar">
+            <span class="related-channel-name">${escapeHtml(video.channelName)}</span>
+          </div>
+          <div class="related-video-stats">
+            <span class="stat">${formatViews(video.views)} vistas</span>
+            <span class="stat-divider">•</span>
+            <span class="stat">${uploadTime}</span>
+          </div>
+        </div>
+      </a>
+      <button class="related-video-menu" title="Más opciones">
+        <span>⋯</span>
+      </button>
+    </div>
+  `;
+    }
+
+    function resolveHref(pageKey) {
+      switch (pageKey) {
+        case "home":
+          return BASE_PATH + "/index.html";
+        case "search":
+          return BASE_PATH + "/pages/search/index.html";
+        case "categories":
+          return BASE_PATH + "/pages/categories/index.html";
+        case "favorites":
+          return BASE_PATH + "/pages/favorites/index.html";
+        case "history":
+          return BASE_PATH + "/pages/history/index.html";
+        case "playlist":
+          return BASE_PATH + "/pages/playlist/index.html";
+        case "channel":
+          return BASE_PATH + "/pages/channel/index.html";
+        case "creator-identity":
+          return BASE_PATH + "/pages/creator-identity/index.html";
+        case "creator-people":
+          return BASE_PATH + "/pages/creator-people/index.html";
+        case "creator-monetization":
+          return BASE_PATH + "/pages/creator-monetization/index.html";
+        case "tags":
+          return BASE_PATH + "/pages/tags/index.html";
+        case "admin":
+          return BASE_PATH + "/pages/admin/index.html";
+        case "login":
+          return BASE_PATH + "/pages/login/index.html";
+        case "register":
+          return BASE_PATH + "/pages/register/index.html";
+        case "profile":
+          return BASE_PATH + "/pages/profile/index.html";
+        case "watch":
+          return BASE_PATH + "/watch.html";
+        case "about":
+          return BASE_PATH + "/pages/about/index.html";
+        case "creators":
+          return BASE_PATH + "/pages/creators/index.html";
+        case "studio":
+          return BASE_PATH + "/pages/studio/index.html";
+        case "terms":
+          return BASE_PATH + "/pages/terms/index.html";
+        case "privacy":
+          return BASE_PATH + "/pages/privacy/index.html";
+        case "cookies":
+          return BASE_PATH + "/pages/cookies/index.html";
+        case "support":
+          return BASE_PATH + "/pages/support/index.html";
+        case "safety":
+          return BASE_PATH + "/pages/safety/index.html";
+        default:
+          return null;
+      }
+    }
+
+    function renderCommentsEnhanced(comments, container) {
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      if (!comments || !comments.length) {
+        container.innerHTML = `
+      <div class="no-comments">
+        <div class="no-comments-icon">💬</div>
+        <h3>No hay comentarios aún</h3>
+        <p>Sé el primero en comentar este video</p>
+      </div>
+    `;
+        return;
+      }
+
+      // Ordenar comentarios (por defecto: más recientes primero)
+      const sortSelect = document.getElementById('sort-comments');
+      let sortedComments = [...comments];
+
+      if (sortSelect) {
+        const sortValue = sortSelect.value;
+        switch (sortValue) {
+          case 'popular':
+            sortedComments.sort((a, b) => b.likes - a.likes);
+            break;
+          case 'oldest':
+            sortedComments.sort((a, b) => a.id - b.id);
+            break;
+          case 'recent':
+          default:
+            sortedComments.sort((a, b) => b.id - a.id);
+            break;
+        }
+      }
+
+      // Renderizar comentarios
+      sortedComments.forEach(comment => {
+        const commentEl = document.createElement('div');
+        commentEl.className = 'comment-item-enhanced';
+        commentEl.innerHTML = `
+      <div class="comment-avatar">
+        <img src="${comment.authorAvatar}" alt="${escapeHtml(comment.author)}">
+        ${comment.isAuthor ? '<span class="comment-author-badge" title="Autor del video">🎬</span>' : ''}
+      </div>
+      <div class="comment-content">
+        <div class="comment-header">
+          <div class="comment-author-info">
+            <span class="comment-author-name">${escapeHtml(comment.author)}</span>
+            <span class="comment-time">${comment.time}</span>
+          </div>
+          <button class="comment-menu-btn" title="Más opciones">
+            <span>⋯</span>
+          </button>
+        </div>
+        <div class="comment-text">${escapeHtml(comment.text)}</div>
+        <div class="comment-actions">
+          <button class="comment-like-btn ${comment.liked ? 'liked' : ''}" data-comment-id="${comment.id}">
+            <span class="like-icon">👍</span>
+            <span class="like-count">${comment.likes || 0}</span>
+          </button>
+          <button class="comment-reply-btn">Responder</button>
+        </div>
+        ${comment.replies && comment.replies.length > 0 ? `
+          <div class="comment-replies">
+            <button class="show-replies-btn">
+              <span class="reply-icon">↪️</span>
+              <span>Ver ${comment.replies.length} respuestas</span>
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+        container.appendChild(commentEl);
+      });
+
+      // Configurar eventos de comentarios
+      setupCommentEvents();
+    }
+
+    function setupCommentEvents() {
+      // Botones de like en comentarios
+      document.querySelectorAll('.comment-like-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const commentId = this.dataset.commentId;
+          const likeCount = this.querySelector('.like-count');
+
+          if (this.classList.contains('liked')) {
+            this.classList.remove('liked');
+            likeCount.textContent = parseInt(likeCount.textContent) - 1;
+          } else {
+            this.classList.add('liked');
+            likeCount.textContent = parseInt(likeCount.textContent) + 1;
+          }
+        });
+      });
+
+      // Menú de comentarios
+      document.querySelectorAll('.comment-menu-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          // Aquí mostrarías un menú de opciones (reportar, copiar, etc.)
+          showNotification('Funcionalidad en desarrollo', 'info');
+        });
+      });
+    }
+
+    function setupWatchEvents(video, currentUser) {
+      // Botón de suscripción
+      const subscribeBtn = document.getElementById('subscribe-btn');
+      if (subscribeBtn) {
+        subscribeBtn.addEventListener('click', () => {
+          if (!currentUser) {
+            window.location.href = resolveHref('login');
+            return;
+          }
+
+          const isSubscribed = subscribeBtn.classList.contains('subscribed');
+
+          if (isSubscribed) {
+            // Cancelar suscripción
+            subscribeBtn.classList.remove('subscribed');
+            subscribeBtn.querySelector('.subscribe-icon').textContent = '🔔';
+            subscribeBtn.querySelector('.subscribe-text').textContent = 'Suscribirse';
+            showNotification('Suscripción cancelada', 'info');
+
+            // Remover de suscripciones del usuario
+            if (currentUser.subscriptions) {
+              currentUser.subscriptions = currentUser.subscriptions.filter(id => id !== video.channelId);
+            }
+          } else {
+            // Suscribirse
+            subscribeBtn.classList.add('subscribed');
+            subscribeBtn.querySelector('.subscribe-icon').textContent = '✓';
+            subscribeBtn.querySelector('.subscribe-text').textContent = 'Suscrito';
+            showNotification('¡Te has suscrito al canal!', 'success');
+
+            // Agregar a suscripciones del usuario
+            if (!currentUser.subscriptions) currentUser.subscriptions = [];
+            if (!currentUser.subscriptions.includes(video.channelId)) {
+              currentUser.subscriptions.push(video.channelId);
+            }
+          }
+
+          // Guardar cambios
+          setStored("ominhub_user", currentUser);
+        });
+      }
+
+      // Botón de ir al canal
+      const goToChannelBtn = document.getElementById('go-to-channel-btn');
+      if (goToChannelBtn) {
+        goToChannelBtn.addEventListener('click', () => {
+          // En una implementación real, aquí redirigirías al perfil del canal
+          // Por ahora, mostramos un mensaje
+          showNotification(`Redirigiendo al perfil de ${video.channelName}...`, 'info');
+
+          // Simular redirección (en producción sería: window.location.href = `/channel/${video.channelId}`)
+          setTimeout(() => {
+            // Aquí iría la lógica para cargar el perfil del canal
+            console.log(`Cargando perfil del canal: ${video.channelId}`);
+          }, 500);
+        });
+      }
+
+      // Botones de like/dislike
+      const likeBtn = document.getElementById('like-btn');
+      const dislikeBtn = document.getElementById('dislike-btn');
+      const likeCountEl = document.getElementById('like-count');
+      const dislikeCountEl = document.getElementById('dislike-count');
+
+      if (likeBtn) {
+        likeBtn.addEventListener('click', () => {
+          video.likes++;
+          likeCountEl.textContent = formatViews(video.likes);
+          likeBtn.classList.add('active');
+          if (dislikeBtn.classList.contains('active')) {
+            dislikeBtn.classList.remove('active');
+            video.dislikes = Math.max(0, video.dislikes - 1);
+            dislikeCountEl.textContent = formatViews(video.dislikes);
+          }
+          showNotification('👍 Te gusta este video', 'info');
+        });
+      }
+
+      if (dislikeBtn) {
+        dislikeBtn.addEventListener('click', () => {
+          video.dislikes++;
+          dislikeCountEl.textContent = formatViews(video.dislikes);
+          dislikeBtn.classList.add('active');
+          if (likeBtn.classList.contains('active')) {
+            likeBtn.classList.remove('active');
+            video.likes = Math.max(0, video.likes - 1);
+            likeCountEl.textContent = formatViews(video.likes);
+          }
+          showNotification('👎 No te gusta este video', 'info');
+        });
+      }
+
+      // Botón de comentar
+      const commentBtn = document.getElementById('comment-btn');
+      const commentInput = document.getElementById('comment-input');
+      const commentCountEl = document.getElementById('comment-count');
+      const commentList = document.getElementById('comment-list');
+
+      if (commentBtn && commentInput) {
+        commentBtn.addEventListener('click', () => {
+          const commentText = commentInput.value.trim();
+          if (!commentText) {
+            showNotification('Escribe un comentario primero', 'error');
+            return;
+          }
+
+          const newComment = {
+            id: Date.now(),
+            author: currentUser.displayName || currentUser.name,
+            authorAvatar: currentUser.avatar || `https://i.pravatar.cc/40?u=${currentUser.name}`,
+            text: commentText,
+            time: "Justo ahora",
+            likes: 0,
+            isAuthor: true
+          };
+
+          video.comments.unshift(newComment);
+          renderCommentsEnhanced(video.comments, commentList);
+          commentCountEl.textContent = video.comments.length;
+          commentInput.value = "";
+
+          showNotification('Comentario publicado', 'success');
+        });
+
+        // Permitir Enter para comentar
+        commentInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            commentBtn.click();
+          }
+        });
+      }
+
+      // Botón de mostrar más descripción
+      const showDescBtn = document.getElementById('show-description-btn');
+      const videoDescription = document.getElementById('video-description');
+
+      if (showDescBtn && videoDescription) {
+        showDescBtn.addEventListener('click', () => {
+          if (videoDescription.classList.contains('expanded')) {
+            videoDescription.classList.remove('expanded');
+            showDescBtn.textContent = 'Mostrar más';
+          } else {
+            videoDescription.classList.add('expanded');
+            showDescBtn.textContent = 'Mostrar menos';
+          }
+        });
+      }
+
+      // Botón de compartir
+      const shareBtn = document.getElementById('share-btn');
+      if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+          const videoUrl = `${window.location.origin}${window.location.pathname}?id=${video.id}`;
+
+          if (navigator.share) {
+            navigator.share({
+              title: video.title,
+              text: `Mira este video: ${video.title}`,
+              url: videoUrl,
+            });
+          } else {
+            navigator.clipboard.writeText(videoUrl).then(() => {
+              showNotification('Enlace copiado al portapapeles', 'success');
+            }).catch(() => {
+              // Fallback
+              const tempInput = document.createElement('input');
+              tempInput.value = videoUrl;
+              document.body.appendChild(tempInput);
+              tempInput.select();
+              document.execCommand('copy');
+              document.body.removeChild(tempInput);
+              showNotification('Enlace copiado al portapapeles', 'success');
+            });
+          }
+        });
+      }
+
+      // Botón de guardar en favoritos
+      const saveBtn = document.getElementById('save-btn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          if (!currentUser) {
+            window.location.href = resolveHref('login');
+            return;
+          }
+
+          saveBtn.classList.toggle('saved');
+          if (saveBtn.classList.contains('saved')) {
+            saveBtn.querySelector('.action-text').textContent = 'Guardado';
+            showNotification('Video guardado en favoritos', 'success');
+          } else {
+            saveBtn.querySelector('.action-text').textContent = 'Guardar';
+            showNotification('Video eliminado de favoritos', 'info');
+          }
+        });
+      }
+
+      // Botón de cargar más comentarios
+      const loadMoreCommentsBtn = document.getElementById('load-more-comments-btn');
+      if (loadMoreCommentsBtn) {
+        loadMoreCommentsBtn.addEventListener('click', () => {
+          // Simular carga de más comentarios
+          setTimeout(() => {
+            const moreComments = Array.from({ length: 5 }, (_, i) => ({
+              id: Date.now() + i,
+              author: `Usuario ${i + 1}`,
+              authorAvatar: `https://i.pravatar.cc/40?u=${i}`,
+              text: `Este es un comentario adicional de ejemplo ${i + 1}`,
+              time: "Hace 1 hora",
+              likes: Math.floor(Math.random() * 50)
+            }));
+
+            video.comments.push(...moreComments);
+            renderCommentsEnhanced(video.comments, commentList);
+            commentCountEl.textContent = video.comments.length;
+            loadMoreCommentsBtn.style.display = 'none';
+
+            showNotification(`${moreComments.length} comentarios más cargados`, 'info');
+          }, 1000);
+        });
+      }
+    }
+
+    function setupVideoPlayer() {
+      const videoPlayer = document.querySelector('.watch-player');
+      if (!videoPlayer) return;
+
+      // Controles personalizados
+      const progressBar = document.querySelector('.progress-fill');
+      const currentTimeEl = document.querySelector('.current-time');
+      const totalTimeEl = document.querySelector('.total-time');
+
+      // Formatear tiempo
+      function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }
+
+      // Actualizar barra de progreso
+      videoPlayer.addEventListener('timeupdate', () => {
+        const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+        if (progressBar) {
+          progressBar.style.width = `${progress}%`;
+        }
+        if (currentTimeEl) {
+          currentTimeEl.textContent = formatTime(videoPlayer.currentTime);
+        }
+      });
+
+      // Actualizar tiempo total cuando se carga el video
+      videoPlayer.addEventListener('loadedmetadata', () => {
+        if (totalTimeEl) {
+          totalTimeEl.textContent = formatTime(videoPlayer.duration);
+        }
+      });
+
+      // Click en barra de progreso para saltar
+      const progressBarContainer = document.querySelector('.progress-bar');
+      if (progressBarContainer) {
+        progressBarContainer.addEventListener('click', (e) => {
+          const rect = progressBarContainer.getBoundingClientRect();
+          const pos = (e.clientX - rect.left) / rect.width;
+          videoPlayer.currentTime = pos * videoPlayer.duration;
+        });
+      }
+
+      // Controles de teclado
+      document.addEventListener('keydown', (e) => {
+        if (document.activeElement.tagName === 'TEXTAREA' ||
+          document.activeElement.tagName === 'INPUT') return;
+
+        switch (e.key) {
+          case ' ':
+          case 'k':
+            e.preventDefault();
+            videoPlayer.paused ? videoPlayer.play() : videoPlayer.pause();
+            break;
+          case 'f':
+            e.preventDefault();
+            videoPlayer.requestFullscreen();
+            break;
+          case 'm':
+            e.preventDefault();
+            videoPlayer.muted = !videoPlayer.muted;
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            videoPlayer.currentTime += 5;
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            videoPlayer.currentTime -= 5;
+            break;
+        }
+      });
+    }
+
+    function showNotification(message, type = 'info') {
+      const existingNotification = document.querySelector('.notification.temporary');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+
+      const notification = document.createElement('div');
+      notification.className = `notification temporary ${type}`;
+
+      const icon = type === 'success' ? '✅' :
+        type === 'error' ? '❌' :
+          type === 'warning' ? '⚠️' : 'ℹ️';
+
+      notification.innerHTML = `
+    <div class="notification-content">
+      <div class="notification-icon">${icon}</div>
+      <div class="notification-text">
+        <p>${message}</p>
+      </div>
+      <button class="notification-close">&times;</button>
+    </div>
+  `;
+
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+
+      const closeBtn = notification.querySelector('.notification-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          notification.classList.remove('show');
+          setTimeout(() => notification.remove(), 300);
+        });
+      }
+
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.classList.remove('show');
+          setTimeout(() => notification.remove(), 300);
+        }
+      }, 5000);
+    }
+
+    function initializeTabs() {
+      const tabButtons = document.querySelectorAll('.profile-nav-item[data-tab]');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabId = button.dataset.tab;
+
+          // Remover clase activa de todos
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+
+          // Activar pestaña seleccionada
+          button.classList.add('active');
+          const activeTab = document.getElementById(`${tabId}-tab`);
+          if (activeTab) {
+            activeTab.classList.add('active');
+          }
+        });
+      });
+    }
+    renderWatch(main);
+
+  </script>
+</body>
+
+</html>

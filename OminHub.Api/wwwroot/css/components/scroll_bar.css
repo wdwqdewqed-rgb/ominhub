@@ -1,0 +1,22 @@
+/* Scrollbar personalizado */
+.watch-related-col::-webkit-scrollbar,
+.comment-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.watch-related-col::-webkit-scrollbar-track,
+.comment-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.watch-related-col::-webkit-scrollbar-thumb,
+.comment-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 153, 0, 0.3);
+  border-radius: 4px;
+}
+
+.watch-related-col::-webkit-scrollbar-thumb:hover,
+.comment-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 153, 0, 0.5);
+}

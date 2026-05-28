@@ -1,0 +1,17 @@
+.chip-filter-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:14px;
+}
+.chip-filter{
+  font-size:11px;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.05);
+  cursor:pointer;
+}
+.chip-filter.active{
+  background:#ff9900;
+  color:#000;
+}

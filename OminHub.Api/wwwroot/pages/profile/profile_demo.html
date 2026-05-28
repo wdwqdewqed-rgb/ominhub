@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - OMINHUB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #ff9900;
+      --accent-dim: rgba(255,153,0,0.15);
+      --accent-border: rgba(255,153,0,0.35);
+      --bg: #0d0d0f;
+      --bg-card: #15151a;
+      --bg-hover: #1e1e26;
+      --bg-input: #1a1a22;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text: #f0f0f5;
+      --text-dim: rgba(240,240,245,0.55);
+      --text-muted: rgba(240,240,245,0.3);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.45);
+      --shadow-lg: 0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── BANNER ─── */
+    .profile-header { position: relative; }
+
+    .profile-banner {
+      position: relative;
+      /* Sin height fijo ni overflow — el avatar puede sobresalir libremente */
+    }
+
+    .banner-image {
+      width: 100%;
+      height: 240px;
+      background: linear-gradient(135deg, #1a0a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%);
+      background-size: cover;
+      background-position: center;
+      transition: filter 0.3s;
+      overflow: hidden;
+      position: relative;
+      border-radius: 0;
+    }
+
+    .banner-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(13,13,15,0.88) 100%);
+      pointer-events: none;
+    }
+
+    .banner-overlay {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+    }
+
+    /* ─── BOTÓN CAMBIAR BANNER ─── */
+    .btn-banner-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-banner-edit:hover {
+      background: rgba(255,153,0,0.2);
+      border-color: rgba(255,153,0,0.5);
+      color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(255,153,0,0.2);
+    }
+
+    .btn-banner-edit svg { width: 13px; height: 13px; opacity: 0.85; }
+
+    /* ─── AVATAR SECTION ─── */
+    /* Vive FUERA del overflow del banner para no cortarse */
+    .profile-avatar-section {
+      position: relative;
+      max-width: 900px;
+      margin: -58px auto 0;
+      padding: 0 28px;
+      display: flex;
+      align-items: flex-end;
+      gap: 22px;
+      z-index: 20;
+    }
+
+    .avatar-container {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .profile-avatar {
+      width: 115px;
+      height: 115px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--bg);
+      box-shadow: 0 0 0 2.5px var(--accent), var(--shadow);
+      display: block;
+      transition: box-shadow 0.3s;
+    }
+
+    .avatar-edit-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+
+    .avatar-container:hover .avatar-edit-overlay { opacity: 1; }
+
+    .btn-avatar-edit {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .online-status {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      width: 14px;
+      height: 14px;
+      background: #22c55e;
+      border-radius: 50%;
+      border: 2.5px solid var(--bg);
+    }
+
+    /* ─── PROFILE INFO ─── */
+    .profile-basic-info {
+      padding-bottom: 10px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-display-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .profile-username {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    .profile-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-verified { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .badge-creator { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+    .badge-premium { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+
+    /* ─── MORE OPTIONS DROPDOWN ─── */
+    .profile-actions { margin-top: 6px; }
+
+    .more-options-container { position: relative; display: inline-block; }
+
+    .btn-icon {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 200px;
+      background: #1c1c26;
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px) scale(0.97);
+      transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 16px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      text-align: left;
+    }
+
+    .dropdown-item:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .dropdown-item span:first-child { font-size: 15px; }
+    .dropdown-item:last-child { border-top: 1px solid var(--border); color: #f87171; }
+    .dropdown-item:last-child:hover { background: rgba(248,113,113,0.08); color: #f87171; }
+
+    /* ─── STATS ─── */
+    .profile-stats {
+      max-width: 900px;
+      margin: 22px auto 0;
+      padding: 0 28px;
+      display: flex;
+      gap: 0;
+    }
+
+    .stat-item {
+      flex: 1;
+      text-align: center;
+      padding: 14px 10px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat-item:last-child { border-right: none; }
+    .stat-item:hover { background: var(--bg-hover); }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    /* ─── NAV TABS ─── */
+    .profile-nav {
+      max-width: 900px;
+      margin: 24px auto 0;
+      padding: 0 28px;
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 11px 18px;
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+      white-space: nowrap;
+    }
+
+    .profile-nav-item:hover { color: var(--text); background: var(--bg-hover); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+    .profile-nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .nav-icon { font-size: 15px; }
+
+    /* ─── CONTENT AREA ─── */
+    .profile-content {
+      max-width: 900px;
+      margin: 28px auto 60px;
+      padding: 0 28px;
+    }
+
+    .tab-content { display: none; animation: fadeIn 0.25s ease; }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ─── VIDEOS GRID ─── */
+    .tab-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .tab-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .form-select {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-select:focus { border-color: var(--accent); }
+    .form-select option { background: #1c1c26; }
+
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .video-card-profile {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s;
+    }
+
+    .video-card-profile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+      border-color: var(--accent-border);
+    }
+
+    .video-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: #1a1a24;
+      overflow: hidden;
+    }
+
+    .thumb-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .video-card-profile:hover .thumb-image { transform: scale(1.06); }
+
+    /* Placeholder colorido para thumbs sin imagen */
+    .thumb-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .video-overlay {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+
+    .sample-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--accent);
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .play-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(255,153,0,0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transform: scale(0.8);
+      transition: transform 0.2s;
+    }
+
+    .video-card-profile:hover .play-overlay { opacity: 1; }
+    .video-card-profile:hover .play-icon { transform: scale(1); }
+
+    .video-info { padding: 14px 14px 12px; }
+
+    .video-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .video-stats {
+      display: flex;
+      gap: 10px;
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    .video-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-video-action {
+      flex: 1;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 5px 0;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-video-action:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+
+    .load-more-container { text-align: center; margin-top: 28px; }
+
+    /* ─── POSTS ─── */
+    .posts-container { max-width: 640px; }
+
+    .post-create {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .post-create textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .post-create textarea:focus { border-color: var(--accent); }
+    .post-create textarea::placeholder { color: var(--text-muted); }
+
+    .post-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .post-card:hover { border-color: var(--border-hover); }
+
+    .post-header {
+      display: flex;
+      gap: 13px;
+      margin-bottom: 13px;
+      align-items: center;
+    }
+
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid var(--accent-border);
+    }
+
+    .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .post-name { font-weight: 600; font-size: 14px; }
+    .post-time { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+    .post-body {
+      font-size: 14px;
+      line-height: 1.65;
+      color: rgba(240,240,245,0.88);
+      margin-bottom: 14px;
+    }
+    .post-banner {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+}
+
+.post-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.post-card:hover .post-banner img {
+  transform: scale(1.03);
+}
+
+.post-caption {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(240,240,245,0.88);
+  margin-bottom: 14px;
+}
+
+    .post-actions { display: flex; gap: 8px; }
+
+    .btn-post-action {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-post-action:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+
+    /* ─── ABOUT ─── */
+    .about-container {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .about-card, .about-details {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .about-card h3, .detail-section h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .bio-content p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(240,240,245,0.8);
+    }
+
+    .detail-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .detail-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .detail-section p { font-size: 14px; color: var(--text-dim); }
+
+    .social-links { display: flex; flex-direction: column; gap: 6px; }
+    .social-link {
+      color: var(--accent);
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .social-link:hover { text-decoration: underline; }
+
+    .achievements-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .achievement {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* ─── ANALYTICS ─── */
+    .analytics-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .analytics-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .analytics-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .analytics-card:hover { border-color: var(--accent-border); }
+    .analytics-card.card-wide { grid-column: span 2; }
+
+    .analytics-card h4 {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .stat-large {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .trend-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .trend-text { font-size: 12px; color: #4ade80; font-weight: 600; }
+
+    .chart-bar-container {
+      height: 160px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 10px 0;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(to top, var(--accent), #ff6b35);
+      border-radius: 5px 5px 0 0;
+      position: relative;
+      transition: opacity 0.2s;
+      min-height: 4px;
+    }
+
+    .chart-bar:hover { opacity: 0.8; }
+
+    .top-videos-list { display: flex; flex-direction: column; gap: 0; }
+
+    .top-video-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .top-video-item:last-child { border-bottom: none; }
+
+    .top-video-rank {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--accent);
+      width: 28px;
+      flex-shrink: 0;
+    }
+
+    .top-video-title { font-weight: 600; font-size: 13.5px; margin-bottom: 4px; }
+
+    .top-video-stats {
+      display: flex;
+      gap: 14px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* ─── EDIT PROFILE ─── */
+    .edit-profile-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      max-width: 560px;
+    }
+
+    .edit-profile-container h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 7px;
+    }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+    .form-textarea { resize: vertical; min-height: 90px; }
+    .tiny { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+
+    .edit-bio-container { margin-top: 12px; }
+    .edit-actions { display: flex; gap: 10px; margin-top: 10px; }
+
+    /* ─── BUTTONS ─── */
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .btn-primary:hover {
+      background: #ffab1a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(255,153,0,0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hover);
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-hover);
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    .btn-text {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: opacity 0.2s;
+    }
+
+    .btn-text:hover { opacity: 0.75; text-decoration: underline; }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #1c1c26;
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    @keyframes modalIn { from { opacity:0; transform:scale(0.92) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 0;
+    }
+
+    .modal-header h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover { background: var(--bg-hover); color: var(--text); }
+
+    .modal-body { padding: 20px 24px; }
+
+    .modal-footer {
+      padding: 16px 24px 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Upload options */
+    .upload-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+
+    .upload-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-option:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent-border);
+    }
+
+    .upload-icon { font-size: 24px; }
+    .upload-text h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .upload-text p { font-size: 12px; color: var(--text-muted); }
+
+    .image-preview-container { text-align: center; }
+
+    .image-preview {
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .image-preview img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-actions { display: flex; gap: 10px; justify-content: center; }
+
+    /* ─── NOTIFICATION ─── */
+    .notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2000;
+      min-width: 280px;
+      max-width: 380px;
+      background: #1e1e2a;
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .notification.success { border-left: 3px solid #22c55e; }
+    .notification.error { border-left: 3px solid #f87171; }
+    .notification.info { border-left: 3px solid var(--accent); }
+
+    .notification-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .notification-icon { font-size: 18px; flex-shrink: 0; }
+    .notification-text p { font-size: 13px; color: var(--text-dim); line-height: 1.4; }
+    .notification-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: auto;
+      padding: 2px 4px;
+      flex-shrink: 0;
+      transition: color 0.2s;
+    }
+    .notification-close:hover { color: var(--text); }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon { font-size: 52px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--text-dim); }
+    .empty-state p { font-size: 13.5px; line-height: 1.6; }
+
+    /* ─── LOADING SKELETON ─── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .video-skeleton .video-thumb { aspect-ratio: 16/9; }
+    .video-skeleton .title-skeleton { height: 14px; width: 90%; margin: 12px 12px 6px; }
+    .video-skeleton .meta-skeleton { height: 11px; width: 60%; margin: 0 12px 12px; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 680px) {
+      .profile-avatar-section { flex-wrap: wrap; margin-top: -45px; gap: 14px; padding: 0 16px; }
+      .banner-image { height: 160px; }
+      .profile-avatar { width: 85px; height: 85px; }
+      .profile-stats { padding: 0 16px; }
+      .stat-item { padding: 10px 6px; }
+      .stat-value { font-size: 1.1rem; }
+      .profile-nav { padding: 0 16px; overflow-x: auto; }
+      .profile-content { padding: 0 16px; }
+      .about-container { grid-template-columns: 1fr; }
+      .analytics-grid { grid-template-columns: 1fr; }
+      .analytics-card.card-wide { grid-column: span 1; }
+      .videos-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
+
+    /* Section wrapper */
+    .section { background: var(--bg); min-height: 100vh; }
+
+    /* ─── VIDEO MODAL ─── */
+    .video-modal-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .video-modal-tab {
+      flex: 1;
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+    }
+
+    .video-modal-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .video-modal-panel { display: none; }
+    .video-modal-panel.active { display: block; }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-row-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .stat-row-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .video-modal-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: var(--bg-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .delete-zone {
+      background: rgba(248,113,113,0.06);
+      border: 1px solid rgba(248,113,113,0.2);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      margin-top: 8px;
+    }
+
+    .delete-zone p {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .btn-danger {
+      background: rgba(248,113,113,0.15);
+      color: #f87171;
+      border: 1px solid rgba(248,113,113,0.35);
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-danger:hover {
+      background: rgba(248,113,113,0.25);
+      border-color: rgba(248,113,113,0.6);
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="main-content"></div>
+
+  <script>
+    const API_BASE = "http://localhost:5000";
+    const BASE_PATH = (window.OMINHUB_BASE_PATH || ".").replace(/\/+$/, "");
+    const OMINHUB_VERIFY_KEY = "ominhub_verification";
+
+    /* ── Helpers ── */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function setStored(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+    }
+
+    function getStored(key) {
+      try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+    }
+
+    function getSessionUser() {
+      return getStored("ominhub_user") || {};
+    }
+
+    function getStoredVerification() {
+      return getStored(OMINHUB_VERIFY_KEY);
+    }
+
+    function resolveHref(pageKey) {
+      const map = {
+        home: BASE_PATH + "/index.html", search: BASE_PATH + "/pages/search/index.html",
+        profile: BASE_PATH + "/pages/profile/index.html", login: BASE_PATH + "/pages/login/index.html",
+        studio: BASE_PATH + "/pages/studio/index.html",
+      };
+      return map[pageKey] || null;
+    }
+
+    /* ── Notification ── */
+    function showNotification(message, type = 'info') {
+      document.querySelectorAll('.notification.temporary').forEach(n => n.remove());
+
+      const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+      const n = document.createElement('div');
+      n.className = `notification temporary ${type}`;
+      n.innerHTML = `
+        <div class="notification-content">
+          <div class="notification-icon">${icons[type] || 'ℹ️'}</div>
+          <div class="notification-text"><p>${message}</p></div>
+          <button class="notification-close">&times;</button>
+        </div>`;
+      document.body.appendChild(n);
+      requestAnimationFrame(() => n.classList.add('show'));
+
+      n.querySelector('.notification-close').addEventListener('click', () => {
+        n.classList.remove('show');
+        setTimeout(() => n.remove(), 300);
+      });
+
+      setTimeout(() => {
+        if (n.parentNode) { n.classList.remove('show'); setTimeout(() => n.remove(), 300); }
+      }, 5000);
+    }
+
+    /* ── Tab helpers ── */
+    window.showVideosTab = function() {
+      switchTab('videos');
+    };
+
+    window.showAnalyticsTab = function() {
+      switchTab('analytics');
+    };
+
+    window.showPlaylistsTab = function() {
+      switchTab('playlists');
+    };
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.profile-nav-item').forEach(b => b.classList.remove('active'));
+      const tab = document.getElementById(tabId + '-tab');
+      if (tab) tab.classList.add('active');
+      const btn = document.querySelector(`[data-tab="${tabId}"]`);
+      if (btn) btn.classList.add('active');
+    }
+
+    /* ══════════════════════════
+       RENDER PROFILE
+    ══════════════════════════ */
+    const main = document.getElementById("main-content");
+
+    function renderProfile(main) {
+      // Load saved data from localStorage
+      const saved = getStored("ominhub_user") || {};
+
+      const user = {
+        name: saved.name || "usuario",
+        displayName: saved.displayName || "Usuario",
+        avatar: saved.avatar || null,
+        cover: saved.cover || null,
+        bio: saved.bio || "",
+        location: saved.location || "",
+        links: saved.links || "",
+        role: "creator",
+      };
+
+      if (!user.posts) {
+  user.posts = [
+    {
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1400&auto=format&fit=crop",
+      caption: "Nuevo setup terminado 🔥",
+      time: "Hace 2 horas",
+      likes: 142,
+      comments: 18
+    },
+    {
+      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1400&auto=format&fit=crop",
+      caption: "Trabajando en nuevas funcionalidades para OMINHUB.",
+      time: "Hace 5 horas",
+      likes: 287,
+      comments: 41
+    },
+    {
+      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1400&auto=format&fit=crop",
+      caption: "Próximamente nuevas herramientas para creators.",
+      time: "Ayer",
+      likes: 512,
+      comments: 63
+    }
+  ];
+} else {
+        user.posts = saved.posts;
+      }
+
+      const isCreator = user.role === 'creator';
+
+      const stats = isCreator
+        ? { videos: "12", subscribers: "1.2K", views: "125K", likes: "8.5K", engagement: "12%" }
+        : { videos: "0", subscribers: "456", views: "23.4K", likes: "1.2K", engagement: "8%" };
+
+      const defaultBannerStyle = user.cover
+        ? `background-image: url('${user.cover}'); background-size: cover; background-position: center;`
+        : `background: linear-gradient(135deg, #1a0a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%);`;
+
+      const defaultAvatar = user.avatar || `https://i.pravatar.cc/300?u=${user.name}`;
+
+      main.innerHTML = `
+        <section class="section">
+
+          <!-- BANNER + AVATAR (avatar fuera del overflow del banner) -->
+          <div class="profile-header">
+            <!-- Solo la imagen del banner, con overflow:hidden propio -->
+            <div class="banner-image" id="profile-banner-image" style="${defaultBannerStyle}">
+              <div class="banner-overlay">
+                <button class="btn-banner-edit" id="edit-banner-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Cambiar banner
+                </button>
+              </div>
+            </div>
+
+            <!-- Avatar FUERA del banner-image para que no se corte -->
+            <div class="profile-avatar-section">
+              <div class="avatar-container" id="profile-avatar-container">
+                <img src="${defaultAvatar}" alt="Avatar" class="profile-avatar" id="profile-avatar">
+                <div class="avatar-edit-overlay">
+                  <button class="btn-avatar-edit" id="edit-avatar-btn">📷</button>
+                </div>
+                <div class="online-status"></div>
+              </div>
+
+              <div class="profile-basic-info">
+                <h1 class="profile-display-name" id="profile-display-name">${escapeHtml(user.displayName)}</h1>
+                <p class="profile-username">@${escapeHtml(user.name)}</p>
+                <div class="profile-badges" id="profile-badges">
+                  ${getStoredVerification()?.state === 'approved' ? '<span class="badge badge-verified">✓ Verificado</span>' : ''}
+                  ${isCreator ? '<span class="badge badge-creator">🎬 Creador</span>' : ''}
+                </div>
+                <div class="profile-actions">
+                  <div class="more-options-container">
+                    <button class="btn-icon" id="more-options-btn" title="Más opciones">⋯</button>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                      <button class="dropdown-item" data-action="share"><span>📤</span> Compartir perfil</button>
+                      <button class="dropdown-item" data-action="report"><span>🚨</span> Reportar usuario</button>
+                     ${isCreator ? `
+  <button class="dropdown-item" data-action="settings"><span>⚙️</span> Configuración</button>
+  <button class="dropdown-item" data-action="analytics"><span>📊</span> Ver analíticas</button>
+` : ''}
+                      <button class="dropdown-item" data-action="logout"><span>🚪</span> Cerrar sesión</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATS -->
+          <div class="profile-stats">
+            <div class="stat-item" onclick="showVideosTab()">
+              <div class="stat-value">${stats.videos}</div>
+              <div class="stat-label">Videos</div>
+            </div>
+            <div class="stat-item" onclick="showAnalyticsTab()">
+              <div class="stat-value">${stats.subscribers}</div>
+              <div class="stat-label">Suscriptores</div>
+            </div>
+            <div class="stat-item" onclick="showAnalyticsTab()">
+              <div class="stat-value">${stats.views}</div>
+              <div class="stat-label">Vistas</div>
+            </div>
+            <div class="stat-item" onclick="showAnalyticsTab()">
+              <div class="stat-value">${stats.likes}</div>
+              <div class="stat-label">Me gusta</div>
+            </div>
+            <div class="stat-item" onclick="showAnalyticsTab()">
+              <div class="stat-value">${stats.engagement}</div>
+              <div class="stat-label">Engagement</div>
+            </div>
+          </div>
+
+          <!-- NAV -->
+          <nav class="profile-nav">
+            ${isCreator ? `
+              <button class="profile-nav-item active" data-tab="videos">
+                <span class="nav-icon">🎬</span><span class="nav-text">Videos</span>
+              </button>
+            ` : ''}
+            <button class="profile-nav-item${!isCreator ? ' active' : ''}" data-tab="posts">
+              <span class="nav-icon">📝</span><span class="nav-text">Posts</span>
+            </button>
+            <button class="profile-nav-item" data-tab="about">
+              <span class="nav-icon">ℹ️</span><span class="nav-text">Acerca de</span>
+            </button>
+            ${isCreator ? `
+              <button class="profile-nav-item" data-tab="analytics">
+                <span class="nav-icon">📊</span><span class="nav-text">Analíticas</span>
+              </button>
+              <button class="profile-nav-item" data-tab="edit">
+                <span class="nav-icon">⚙️</span><span class="nav-text">Editar perfil</span>
+              </button>
+            ` : ''}
+          </nav>
+
+          <!-- CONTENT -->
+          <div class="profile-content">
+
+            <!-- VIDEOS TAB -->
+            ${isCreator ? `
+              <div class="tab-content active" id="videos-tab">
+                <div class="tab-header">
+                  <h2>Mis Videos</h2>
+                  <select class="form-select" id="sort-videos">
+                    <option value="recent">Más recientes</option>
+                    <option value="popular">Más populares</option>
+                    <option value="oldest">Más antiguos</option>
+                    <option value="likes">Más gustados</option>
+                  </select>
+                </div>
+                <div class="videos-grid" id="videos-grid">
+                  ${[1,2,3,4].map(() => `
+                    <div class="video-card-profile video-skeleton">
+                      <div class="video-thumb skeleton"></div>
+                      <div class="title-skeleton skeleton"></div>
+                      <div class="meta-skeleton skeleton"></div>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="load-more-container">
+                  <button class="btn-outline" id="load-more-videos">Cargar más videos</button>
+                </div>
+              </div>
+            ` : `
+              <div class="tab-content" id="videos-tab">
+                <div class="empty-state">
+                  <div class="empty-icon">🎬</div>
+                  <h3>Explora contenido</h3>
+                  <p>Como viewer, disfruta todo el contenido disponible en OMINHUB.</p>
+                </div>
+              </div>
+            `}
+
+            <!-- POSTS TAB -->
+            <div class="tab-content${!isCreator ? ' active' : ''}" id="posts-tab">
+              <div class="posts-container">
+                <div class="post-create">
+                  <textarea id="post-content" placeholder="Escribe algo para tus seguidores..." rows="3"></textarea>
+                  <button class="btn-primary" id="post-create-btn">
+                    <span>✨</span> Publicar
+                  </button>
+                </div>
+                <div id="profile-posts"></div>
+              </div>
+            </div>
+
+            <!-- ABOUT TAB -->
+            <div class="tab-content" id="about-tab">
+              <div class="about-container">
+                <div class="about-card">
+                  <h3>Acerca de mí</h3>
+                  <div class="bio-content" id="profile-bio">
+                    <p>${escapeHtml(user.bio || "Esta es la biografía del usuario. Aquí puedes compartir tu historia, intereses y el contenido que creas.")}</p>
+                  </div>
+                  ${isCreator ? `
+                    <div class="edit-bio-container" style="display:none;" id="edit-bio-wrap">
+                      <textarea class="form-textarea" id="edit-bio-textarea" rows="4" placeholder="Cuéntanos sobre ti...">${escapeHtml(user.bio || '')}</textarea>
+                      <div class="edit-actions">
+                        <button class="btn-primary" id="save-bio-btn">Guardar</button>
+                        <button class="btn-outline" id="cancel-edit-bio">Cancelar</button>
+                      </div>
+                    </div>
+                    <div style="margin-top:16px;">
+                      <button class="btn-text" id="edit-bio-btn">✏️ Editar biografía</button>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="about-details">
+                  <div class="detail-section">
+                    <h4>📅 Se unió en</h4>
+                    <p>${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</p>
+                  </div>
+                  <div class="detail-section">
+                    <h4>📍 Ubicación</h4>
+                    <p id="location-info">${escapeHtml(user.location || "No especificada")}</p>
+                  </div>
+                  <div class="detail-section">
+                    <h4>🔗 Enlaces</h4>
+                    <div class="social-links" id="social-links">
+                      ${user.links
+                        ? user.links.split(',').map(l => `<a href="${l.trim()}" target="_blank" rel="noopener" class="social-link">🔗 ${escapeHtml(l.trim())}</a>`).join('')
+                        : '<span style="font-size:13px;color:var(--text-muted)">No hay enlaces aún</span>'}
+                    </div>
+                    ${isCreator ? `<button class="btn-text" style="margin-top:8px;" id="add-social-link">+ Agregar enlace</button>` : ''}
+                  </div>
+                  <div class="detail-section">
+                    <h4>🏆 Logros</h4>
+                    <div class="achievements-grid">
+                      <div class="achievement"><span>👤</span><span>Usuario activo</span></div>
+                      <div class="achievement"><span>🌟</span><span>Primer post</span></div>
+                      <div class="achievement"><span>💬</span><span>Comunidad</span></div>
+                      ${isCreator ? '<div class="achievement"><span>🎬</span><span>Creador</span></div>' : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ANALYTICS TAB -->
+            ${isCreator ? `
+              <div class="tab-content" id="analytics-tab">
+                <div class="analytics-container">
+                  <div class="analytics-header">
+                    <h2>📊 Analíticas del canal</h2>
+                    <select class="form-select" id="analytics-range">
+                      <option value="7d">Últimos 7 días</option>
+                      <option value="30d" selected>Últimos 30 días</option>
+                      <option value="90d">Últimos 90 días</option>
+                      <option value="1y">Último año</option>
+                    </select>
+                  </div>
+                  <div class="analytics-grid">
+                    <div class="analytics-card card-wide">
+                      <h4>📈 Crecimiento de suscriptores</h4>
+                      <div class="chart-bar-container">
+                        ${[65, 72, 58, 81, 74, 88, 95].map((h, i) => `
+                          <div class="chart-bar" style="height:${h}%;" title="Semana ${i+1}: ${Math.round(h*12)} subs"></div>
+                        `).join('')}
+                      </div>
+                    </div>
+                    <div class="analytics-card">
+                      <h4>👁️ Visualizaciones</h4>
+                      <div class="stat-large">125.4K</div>
+                      <div class="trend-indicator"><span>↗️</span><span class="trend-text">+12%</span></div>
+                    </div>
+                    <div class="analytics-card">
+                      <h4>👍 Me gusta</h4>
+                      <div class="stat-large">8.5K</div>
+                      <div class="trend-indicator"><span>↗️</span><span class="trend-text">+8%</span></div>
+                    </div>
+                    <div class="analytics-card">
+                      <h4>💬 Comentarios</h4>
+                      <div class="stat-large">342</div>
+                      <div class="trend-indicator"><span>↗️</span><span class="trend-text">+5%</span></div>
+                    </div>
+                    <div class="analytics-card">
+                      <h4>⏱️ Tiempo promedio</h4>
+                      <div class="stat-large">4:32</div>
+                      <div class="trend-indicator"><span>↗️</span><span class="trend-text">+3%</span></div>
+                    </div>
+                    <div class="analytics-card card-wide">
+                      <h4>🎯 Top Videos</h4>
+                      <div class="top-videos-list">
+                        ${[
+                          { n:'Mi primer video en OMINHUB', v:'12.4K', l:'2.3K', c:'456' },
+                          { n:'Tutorial completo de edición', v:'8.7K', l:'1.5K', c:'234' },
+                          { n:'Review de equipo de grabación', v:'6.2K', l:'987', c:'123' },
+                        ].map((v, i) => `
+                          <div class="top-video-item">
+                            <div class="top-video-rank">${i+1}</div>
+                            <div style="flex:1;">
+                              <div class="top-video-title">${v.n}</div>
+                              <div class="top-video-stats">
+                                <span>👁️ ${v.v}</span>
+                                <span>👍 ${v.l}</span>
+                                <span>💬 ${v.c}</span>
+                              </div>
+                            </div>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- EDIT PROFILE TAB -->
+            ${isCreator ? `
+              <div class="tab-content" id="edit-tab">
+                <div class="edit-profile-container">
+                  <h2>⚙️ Editar perfil</h2>
+                  <div class="form-group">
+                    <label for="edit-display-name">Nombre para mostrar</label>
+                    <input type="text" class="form-input" id="edit-display-name" placeholder="Tu nombre público" value="${escapeHtml(user.displayName || '')}">
+                  </div>
+                  <div class="form-group">
+                    <label for="edit-bio-inline">Biografía</label>
+                    <textarea class="form-textarea" id="edit-bio-inline" rows="4" placeholder="Cuéntanos sobre ti...">${escapeHtml(user.bio || '')}</textarea>
+                    <div class="tiny">Máximo 160 caracteres recomendado</div>
+                  </div>
+                  <div class="form-group">
+                    <label for="edit-location-inline">Ubicación</label>
+                    <input type="text" class="form-input" id="edit-location-inline" placeholder="Ciudad, País" value="${escapeHtml(user.location || '')}">
+                  </div>
+                  <div class="form-group">
+                    <label for="edit-links-inline">Enlaces (separados por coma)</label>
+                    <input type="text" class="form-input" id="edit-links-inline" placeholder="twitter.com/tu_usuario, youtube.com/tu_canal" value="${escapeHtml(user.links || '')}">
+                    <div class="tiny">Separar múltiples enlaces con coma</div>
+                  </div>
+                  <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
+                    <button class="btn-primary" id="save-inline-profile-btn">💾 Guardar cambios</button>
+                    <div id="inline-save-info" style="font-size:13px;color:var(--text-muted);"></div>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+
+          </div>
+
+          <!-- UPLOAD MODAL -->
+          <div class="modal-overlay" id="upload-image-modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>📸 Subir imagen</h3>
+                <button class="modal-close" id="close-upload-modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                <div class="upload-options" id="upload-options-list">
+                  <div class="upload-option" id="upload-avatar-option">
+                    <div class="upload-icon">👤</div>
+                    <div class="upload-text">
+                      <h4>Foto de perfil</h4>
+                      <p>Recomendado: 500×500 px · Máx 5 MB</p>
+                    </div>
+                    <input type="file" id="upload-avatar-input" accept="image/*" style="display:none;">
+                  </div>
+                  <div class="upload-option" id="upload-banner-option">
+                    <div class="upload-icon">🖼️</div>
+                    <div class="upload-text">
+                      <h4>Banner</h4>
+                      <p>Recomendado: 1500×500 px · Máx 5 MB</p>
+                    </div>
+                    <input type="file" id="upload-banner-input" accept="image/*" style="display:none;">
+                  </div>
+                </div>
+                <div class="image-preview-container" id="image-preview-container" style="display:none;">
+                  <div class="image-preview">
+                    <img id="preview-image" src="" alt="Vista previa">
+                  </div>
+                  <div class="preview-actions">
+                    <button class="btn-primary" id="confirm-upload">✅ Confirmar</button>
+                    <button class="btn-outline" id="cancel-upload">Cancelar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIDEO STATS/EDIT MODAL -->
+          <div class="modal-overlay" id="video-detail-modal">
+            <div class="modal-content" style="max-width:520px;">
+              <div class="modal-header">
+                <h3 id="video-modal-title">Video</h3>
+                <button class="modal-close" id="close-video-modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                <div class="video-modal-thumb" id="video-modal-thumb">🎬</div>
+                <div class="video-modal-tabs">
+                  <button class="video-modal-tab active" data-vtab="stats">📊 Estadísticas</button>
+                  <button class="video-modal-tab" data-vtab="edit">✏️ Editar</button>
+                  <button class="video-modal-tab" data-vtab="delete">🗑️ Eliminar</button>
+                </div>
+
+                <!-- STATS PANEL -->
+                <div class="video-modal-panel active" id="vtab-stats">
+                  <div class="stat-row">
+                    <div class="stat-row-label">👁️ Visualizaciones</div>
+                    <div class="stat-row-value" id="vstat-views">—</div>
+                  </div>
+                  <div class="stat-row">
+                    <div class="stat-row-label">👍 Me gusta</div>
+                    <div class="stat-row-value" id="vstat-likes">—</div>
+                  </div>
+                  <div class="stat-row">
+                    <div class="stat-row-label">💬 Comentarios</div>
+                    <div class="stat-row-value" id="vstat-comments">—</div>
+                  </div>
+                  <div class="stat-row">
+                    <div class="stat-row-label">⏱️ Duración</div>
+                    <div class="stat-row-value" id="vstat-duration">—</div>
+                  </div>
+                  <div class="stat-row">
+                    <div class="stat-row-label">📅 Publicado</div>
+                    <div class="stat-row-value" id="vstat-date" style="font-size:0.85rem;font-family:'DM Sans',sans-serif;font-weight:500;">—</div>
+                  </div>
+                </div>
+
+                <!-- EDIT PANEL -->
+                <div class="video-modal-panel" id="vtab-edit">
+                  <div class="form-group">
+                    <label for="vedit-title">Título del video</label>
+                    <input type="text" class="form-input" id="vedit-title" placeholder="Escribe el título...">
+                  </div>
+                  <div class="form-group">
+                    <label for="vedit-desc">Descripción</label>
+                    <textarea class="form-textarea" id="vedit-desc" rows="4" placeholder="Descripción del video..."></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="vedit-badge">Etiqueta / Badge</label>
+                    <input type="text" class="form-input" id="vedit-badge" placeholder="Ej: Nuevo, Popular, Exclusivo...">
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:4px;">
+                    <button class="btn-primary" id="vedit-save-btn">💾 Guardar cambios</button>
+                    <div id="vedit-info" style="font-size:12px;color:var(--text-muted);align-self:center;"></div>
+                  </div>
+                </div>
+
+                <!-- DELETE PANEL -->
+                <div class="video-modal-panel" id="vtab-delete">
+                  <div class="delete-zone">
+                    <p>¿Estás seguro de que quieres eliminar <strong id="vdelete-title-confirm">"este video"</strong>? Esta acción no se puede deshacer.</p>
+                    <button class="btn-danger" id="vdelete-confirm-btn">🗑️ Sí, eliminar video</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+        </section>
+      `;
+
+      // Initialize
+      initializeProfile(user, isCreator);
+    }
+
+    /* ══════════════════════════
+       INITIALIZE
+    ══════════════════════════ */
+    function initializeProfile(user, isCreator) {
+      initializeTabs();
+      initializeDropdownMenu();
+      initializeImageUpload(user);
+      renderUserPosts(user);
+
+      if (isCreator) {
+        loadCreatorVideos();
+        initializeCreatorFunctions(user);
+        initializeBioEdit(user);
+        initializeInlineEditProfile(user);
+      }
+    }
+
+    /* ── Tabs ── */
+    function initializeTabs() {
+      const buttons = document.querySelectorAll('.profile-nav-item[data-tab]');
+      const contents = document.querySelectorAll('.tab-content');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          contents.forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          const tab = document.getElementById(btn.dataset.tab + '-tab');
+          if (tab) tab.classList.add('active');
+        });
+      });
+    }
+
+    /* ── Dropdown ── */
+    function initializeDropdownMenu() {
+      const btn = document.getElementById('more-options-btn');
+      const menu = document.getElementById('dropdown-menu');
+      if (!btn || !menu) return;
+
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        menu.classList.toggle('show');
+      });
+
+      document.addEventListener('click', e => {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.remove('show');
+        }
+      });
+
+      menu.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const action = item.dataset.action;
+          menu.classList.remove('show');
+          handleDropdownAction(action);
+        });
+      });
+    }
+
+    function handleDropdownAction(action) {
+      if (action === 'share') {
+        const url = window.location.href;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => showNotification('Enlace copiado al portapapeles', 'success'));
+        } else {
+          showNotification('Comparte: ' + url, 'info');
+        }
+      } else if (action === 'report') {
+        showNotification('Funcionalidad de reporte en desarrollo', 'info');
+      } else if (action === 'analytics') {
+        switchTab('analytics');
+      } else if (action === 'settings') {
+        switchTab('edit');
+      } else if (action === 'logout') {
+        showNotification('Sesión cerrada', 'info');
+      }
+    }
+
+    /* ── Image Upload (local persistence with localStorage + Data URL) ── */
+    function initializeImageUpload(user) {
+      const editAvatarBtn = document.getElementById('edit-avatar-btn');
+      const editBannerBtn = document.getElementById('edit-banner-btn');
+      const avatarInput = document.getElementById('upload-avatar-input');
+      const bannerInput = document.getElementById('upload-banner-input');
+      const confirmBtn = document.getElementById('confirm-upload');
+      const cancelBtn = document.getElementById('cancel-upload');
+      const closeBtn = document.getElementById('close-upload-modal');
+      const modal = document.getElementById('upload-image-modal');
+      const avatarOption = document.getElementById('upload-avatar-option');
+      const bannerOption = document.getElementById('upload-banner-option');
+      const previewContainer = document.getElementById('image-preview-container');
+      const previewImg = document.getElementById('preview-image');
+
+      let uploadType = null;
+      let pendingDataUrl = null;
+
+      function openModal(type) {
+        uploadType = type;
+        pendingDataUrl = null;
+        previewContainer.style.display = 'none';
+        document.getElementById('upload-options-list').style.display = 'flex';
+
+        // Highlight the relevant option
+        avatarOption.style.background = type === 'avatar' ? 'var(--accent-dim)' : '';
+        avatarOption.style.borderColor = type === 'avatar' ? 'var(--accent)' : '';
+        bannerOption.style.background = type === 'banner' ? 'var(--accent-dim)' : '';
+        bannerOption.style.borderColor = type === 'banner' ? 'var(--accent)' : '';
+
+        modal.style.display = 'flex';
+      }
+
+      function closeModal() {
+        modal.style.display = 'none';
+        pendingDataUrl = null;
+        uploadType = null;
+        previewContainer.style.display = 'none';
+        document.getElementById('upload-options-list').style.display = 'flex';
+        if (avatarInput) avatarInput.value = '';
+        if (bannerInput) bannerInput.value = '';
+      }
+
+      function handleFile(file, type) {
+        if (!file || !file.type.startsWith('image/')) {
+          showNotification('Por favor selecciona una imagen válida', 'error');
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          showNotification('La imagen es muy grande (máximo 5 MB)', 'error');
+          return;
+        }
+
+        uploadType = type;
+        const reader = new FileReader();
+        reader.onload = e => {
+          pendingDataUrl = e.target.result;
+          previewImg.src = pendingDataUrl;
+          document.getElementById('upload-options-list').style.display = 'none';
+          previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+
+      if (editAvatarBtn) editAvatarBtn.addEventListener('click', () => openModal('avatar'));
+      if (editBannerBtn) editBannerBtn.addEventListener('click', () => openModal('banner'));
+
+      if (avatarOption) {
+        avatarOption.addEventListener('click', () => {
+          uploadType = 'avatar';
+          avatarInput.click();
+        });
+      }
+
+      if (bannerOption) {
+        bannerOption.addEventListener('click', () => {
+          uploadType = 'banner';
+          bannerInput.click();
+        });
+      }
+
+      if (avatarInput) avatarInput.addEventListener('change', e => handleFile(e.target.files[0], 'avatar'));
+      if (bannerInput) bannerInput.addEventListener('change', e => handleFile(e.target.files[0], 'banner'));
+
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => {
+          if (!pendingDataUrl || !uploadType) {
+            showNotification('Selecciona una imagen primero', 'error');
+            return;
+          }
+
+          // Persist locally using Data URL in localStorage
+          const savedUser = getStored("ominhub_user") || {};
+
+          if (uploadType === 'avatar') {
+            document.getElementById('profile-avatar').src = pendingDataUrl;
+            savedUser.avatar = pendingDataUrl;
+            showNotification('Foto de perfil actualizada ✅', 'success');
+          } else if (uploadType === 'banner') {
+            const banner = document.getElementById('profile-banner-image');
+            banner.style.backgroundImage = `url('${pendingDataUrl}')`;
+            banner.style.backgroundSize = 'cover';
+            banner.style.backgroundPosition = 'center';
+            savedUser.cover = pendingDataUrl;
+            showNotification('Banner actualizado ✅', 'success');
+          }
+
+          setStored("ominhub_user", savedUser);
+          closeModal();
+        });
+      }
+
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (modal) modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    }
+
+    /* ── Posts ── */
+    function renderUserPosts(user) {
+      const container = document.getElementById('profile-posts');
+      const createBtn = document.getElementById('post-create-btn');
+      if (!container) return;
+
+      function displayPosts() {
+        const savedUser = getStored("ominhub_user") || user;
+        const posts = savedUser.posts || user.posts || [];
+
+        if (!posts.length) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📝</div>
+              <h3>No hay posts aún</h3>
+              <p>¡Sé el primero en publicar algo!</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = posts.map(post => `
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar">
+                <img src="${user.avatar || `https://i.pravatar.cc/150?u=${user.name}`}" alt="avatar">
+              </div>
+              <div>
+                <div class="post-name">${escapeHtml(user.displayName || user.name)}</div>
+                <div class="post-time">${post.time}</div>
+              </div>
+            </div>
+            <div class="post-banner">
+  <img src="${post.image}" alt="Post image">
+</div>
+
+<div class="post-caption">
+  ${escapeHtml(post.caption)}
+</div>
+            <div class="post-actions">
+              <button class="btn-post-action">👍 Me gusta${post.likes ? ' · ' + post.likes : ''}</button>
+              <button class="btn-post-action">💬 Comentar${post.comments ? ' · ' + post.comments : ''}</button>
+              <button class="btn-post-action">🔄 Compartir</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      if (createBtn) {
+        createBtn.addEventListener('click', () => {
+          const textarea = document.getElementById('post-content');
+          const content = textarea.value.trim();
+          if (!content) { showNotification('Escribe algo para publicar', 'error'); return; }
+
+          const savedUser = getStored("ominhub_user") || user;
+          if (!savedUser.posts) savedUser.posts = [];
+          savedUser.posts.unshift({ text: content, time: 'Hace unos momentos', likes: 0, comments: 0 });
+          user.posts = savedUser.posts;
+          setStored("ominhub_user", savedUser);
+
+          displayPosts();
+          textarea.value = '';
+          showNotification('Post publicado ✅', 'success');
+        });
+      }
+
+      displayPosts();
+    }
+
+    /* ── Creator: videos ── */
+    // Global video store (se puede reemplazar con fetch al API)
+    let _videoStore = [
+      { id: 1, title: "Mi primer video en OMINHUB", duration: "4:20", views: "12.4K", likes: "2.3K", comments: "456", date: "Hace 2 días", badge: "Nuevo", desc: "" },
+      { id: 2, title: "Tutorial completo de edición", duration: "15:32", views: "8.7K", likes: "1.5K", comments: "234", date: "Hace 1 semana", badge: "Popular", desc: "" },
+      { id: 3, title: "Review de mi equipo de grabación", duration: "22:10", views: "6.2K", likes: "987", comments: "123", date: "Hace 2 semanas", badge: "Destacado", desc: "" },
+      { id: 4, title: "Q&A con mis seguidores", duration: "18:45", views: "5.1K", likes: "876", comments: "189", date: "Hace 3 semanas", badge: "Interactivo", desc: "" },
+    ];
+
+    const _colors = ['#2d1b69','#1b3a4b','#2d4a1b','#4a1b2d','#1b2d4a','#3a2d1b','#1b4a3a','#4a3a1b'];
+    const _emojis = ['🎬','🎥','📹','🎞️','🎭','🎨','🎮','🎵'];
+
+    function renderVideoGrid(videos) {
+      const grid = document.getElementById('videos-grid');
+      if (!grid) return;
+      if (!videos.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🎬</div><h3>No hay videos</h3><p>Sube tu primer video.</p></div>';
+        return;
+      }
+      grid.innerHTML = videos.map((v, i) => {
+        const ci = i % _colors.length;
+        return `
+          <div class="video-card-profile" data-video-id="${v.id}">
+            <div class="video-thumb">
+              <div class="thumb-placeholder" style="background:${_colors[ci]};">
+                <span style="font-size:36px;">${_emojis[ci]}</span>
+              </div>
+              <div class="video-overlay">${v.duration}</div>
+              <div class="sample-badge">${v.badge}</div>
+              <div class="play-overlay"><div class="play-icon">▶</div></div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">${escapeHtml(v.title)}</div>
+              <div class="video-meta">${v.date}</div>
+              <div class="video-stats">
+                <span>👁️ ${v.views}</span>
+                <span>👍 ${v.likes}</span>
+                <span>💬 ${v.comments}</span>
+              </div>
+              <div class="video-actions">
+                <button class="btn-video-action btn-open-vstats" data-vid="${v.id}" data-vtab="stats">📊 Estadísticas</button>
+                <button class="btn-video-action btn-open-vedit" data-vid="${v.id}" data-vtab="edit">✏️ Editar</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Wire up action buttons
+      grid.querySelectorAll('[data-vid]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const vid = parseInt(btn.dataset.vid);
+          const tab = btn.dataset.vtab || 'stats';
+          openVideoModal(vid, tab);
+        });
+      });
+    }
+
+    function loadCreatorVideos() {
+      const grid = document.getElementById('videos-grid');
+      if (!grid) return;
+
+      // Load saved edits from localStorage
+      const saved = getStored('ominhub_videos');
+      if (saved && Array.isArray(saved)) _videoStore = saved;
+
+      setTimeout(() => {
+        renderVideoGrid(_videoStore);
+        initVideoModal();
+      }, 600);
+    }
+
+    /* ── Video Modal ── */
+    function openVideoModal(videoId, initialTab = 'stats') {
+      const v = _videoStore.find(x => x.id === videoId);
+      if (!v) return;
+      const modal = document.getElementById('video-detail-modal');
+      if (!modal) return;
+
+      // Populate data
+      document.getElementById('video-modal-title').textContent = v.title;
+      const thumb = document.getElementById('video-modal-thumb');
+      const idx = _videoStore.indexOf(v);
+      thumb.innerHTML = `<span style="font-size:48px;">${_emojis[idx % _emojis.length]}</span>`;
+      thumb.style.background = _colors[idx % _colors.length];
+
+      document.getElementById('vstat-views').textContent = v.views;
+      document.getElementById('vstat-likes').textContent = v.likes;
+      document.getElementById('vstat-comments').textContent = v.comments;
+      document.getElementById('vstat-duration').textContent = v.duration;
+      document.getElementById('vstat-date').textContent = v.date;
+
+      document.getElementById('vedit-title').value = v.title;
+      document.getElementById('vedit-desc').value = v.desc || '';
+      document.getElementById('vedit-badge').value = v.badge || '';
+      document.getElementById('vedit-info').textContent = '';
+
+      document.getElementById('vdelete-title-confirm').textContent = '"' + v.title + '"';
+
+      // Switch to requested tab
+      switchVideoModalTab(initialTab);
+
+      // Store current video id
+      modal.dataset.currentVid = videoId;
+      modal.style.display = 'flex';
+    }
+
+    function switchVideoModalTab(tabId) {
+      document.querySelectorAll('.video-modal-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.video-modal-panel').forEach(p => p.classList.remove('active'));
+      const tab = document.querySelector(`.video-modal-tab[data-vtab="${tabId}"]`);
+      const panel = document.getElementById('vtab-' + tabId);
+      if (tab) tab.classList.add('active');
+      if (panel) panel.classList.add('active');
+    }
+
+    function initVideoModal() {
+      const modal = document.getElementById('video-detail-modal');
+      if (!modal || modal._initialized) return;
+      modal._initialized = true;
+
+      // Close
+      document.getElementById('close-video-modal').addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+      modal.addEventListener('click', e => {
+        if (e.target === modal) modal.style.display = 'none';
+      });
+
+      // Tab switching
+      document.querySelectorAll('.video-modal-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchVideoModalTab(tab.dataset.vtab));
+      });
+
+      // Save edits
+      document.getElementById('vedit-save-btn').addEventListener('click', () => {
+        const vid = parseInt(modal.dataset.currentVid);
+        const v = _videoStore.find(x => x.id === vid);
+        if (!v) return;
+
+        v.title = document.getElementById('vedit-title').value.trim() || v.title;
+        v.desc = document.getElementById('vedit-desc').value.trim();
+        v.badge = document.getElementById('vedit-badge').value.trim() || v.badge;
+
+        setStored('ominhub_videos', _videoStore);
+        renderVideoGrid(_videoStore);
+
+        document.getElementById('video-modal-title').textContent = v.title;
+        document.getElementById('vdelete-title-confirm').textContent = '"' + v.title + '"';
+
+        const info = document.getElementById('vedit-info');
+        info.textContent = '✅ Guardado';
+        info.style.color = '#4ade80';
+        setTimeout(() => { info.textContent = ''; }, 2500);
+
+        showNotification('Video actualizado ✅', 'success');
+      });
+
+      // Delete
+      document.getElementById('vdelete-confirm-btn').addEventListener('click', () => {
+        const vid = parseInt(modal.dataset.currentVid);
+        _videoStore = _videoStore.filter(x => x.id !== vid);
+        setStored('ominhub_videos', _videoStore);
+        renderVideoGrid(_videoStore);
+        modal.style.display = 'none';
+        showNotification('Video eliminado', 'info');
+      });
+    }
+
+    function initializeCreatorFunctions(user) {
+      const loadMoreBtn = document.getElementById('load-more-videos');
+      if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+          const grid = document.getElementById('videos-grid');
+          if (!grid) return;
+          loadMoreBtn.textContent = 'Cargando…';
+          loadMoreBtn.disabled = true;
+
+          const colors = ['#2d1b69','#1b3a4b'];
+          const extra = [
+            { id: 5, title: "Behind the scenes - Mi proceso creativo", duration: "12:30", views: "4.3K", likes: "654", comments: "98", date: "Hace 1 mes", badge: "Exclusivo", desc: "" },
+            { id: 6, title: "Colaboración con otro creador", duration: "25:15", views: "7.8K", likes: "1.2K", comments: "267", date: "Hace 1 mes", badge: "Colab", desc: "" },
+          ];
+
+          setTimeout(() => {
+            extra.forEach(v => {
+              if (!_videoStore.find(x => x.id === v.id)) _videoStore.push(v);
+            });
+            renderVideoGrid(_videoStore);
+            showNotification('2 videos más cargados', 'success');
+            loadMoreBtn.textContent = 'No hay más videos';
+          }, 800);
+        });
+      }
+
+      const sortSelect = document.getElementById('sort-videos');
+      if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+          const labels = { recent:'Más recientes', popular:'Más populares', oldest:'Más antiguos', likes:'Más gustados' };
+          showNotification(`Ordenado: ${labels[this.value] || this.value}`, 'info');
+        });
+      }
+    }
+
+    /* ── Bio inline edit ── */
+    function initializeBioEdit(user) {
+      const editBtn = document.getElementById('edit-bio-btn');
+      const saveBtn = document.getElementById('save-bio-btn');
+      const cancelBtn = document.getElementById('cancel-edit-bio');
+      const bioContent = document.getElementById('profile-bio');
+      const bioWrap = document.getElementById('edit-bio-wrap');
+      const textarea = document.getElementById('edit-bio-textarea');
+
+      if (editBtn) {
+        editBtn.addEventListener('click', () => {
+          bioWrap.style.display = 'block';
+          bioContent.style.display = 'none';
+          editBtn.style.display = 'none';
+          textarea.value = user.bio || '';
+        });
+      }
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          user.bio = textarea.value;
+          const savedUser = getStored("ominhub_user") || {};
+          savedUser.bio = user.bio;
+          setStored("ominhub_user", savedUser);
+
+          bioContent.innerHTML = `<p>${escapeHtml(user.bio || "Esta es la biografía del usuario.")}</p>`;
+          bioWrap.style.display = 'none';
+          bioContent.style.display = 'block';
+          editBtn.style.display = '';
+
+          showNotification('Biografía actualizada ✅', 'success');
+        });
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          bioWrap.style.display = 'none';
+          bioContent.style.display = 'block';
+          editBtn.style.display = '';
+        });
+      }
+    }
+
+    /* ── Inline edit profile tab ── */
+    function initializeInlineEditProfile(user) {
+      const saveBtn = document.getElementById('save-inline-profile-btn');
+      if (!saveBtn) return;
+
+      saveBtn.addEventListener('click', () => {
+        const displayName = document.getElementById('edit-display-name')?.value || user.displayName;
+        const bio = document.getElementById('edit-bio-inline')?.value || user.bio;
+        const location = document.getElementById('edit-location-inline')?.value || user.location;
+        const links = document.getElementById('edit-links-inline')?.value || user.links;
+
+        user.displayName = displayName;
+        user.bio = bio;
+        user.location = location;
+        user.links = links;
+
+        const savedUser = getStored("ominhub_user") || {};
+        Object.assign(savedUser, { displayName, bio, location, links });
+        setStored("ominhub_user", savedUser);
+
+        // Update displayed values
+        const nameEl = document.getElementById('profile-display-name');
+        if (nameEl) nameEl.textContent = displayName;
+
+        const bioEl = document.getElementById('profile-bio');
+        if (bioEl) bioEl.innerHTML = `<p>${escapeHtml(bio)}</p>`;
+
+        const locEl = document.getElementById('location-info');
+        if (locEl) locEl.textContent = location || 'No especificada';
+
+        const linksEl = document.getElementById('social-links');
+        if (linksEl) {
+          linksEl.innerHTML = links
+            ? links.split(',').map(l => `<a href="${l.trim()}" target="_blank" rel="noopener" class="social-link">🔗 ${escapeHtml(l.trim())}</a>`).join('')
+            : '<span style="font-size:13px;color:var(--text-muted)">No hay enlaces aún</span>';
+        }
+
+        const info = document.getElementById('inline-save-info');
+        if (info) {
+          info.textContent = '✅ Guardado correctamente';
+          info.style.color = '#4ade80';
+          setTimeout(() => { info.textContent = ''; }, 3000);
+        }
+
+        showNotification('Perfil actualizado ✅', 'success');
+      });
+    }
+
+    /* ── Boot ── */
+    renderProfile(main);
+  </script>
+</body>
+</html>

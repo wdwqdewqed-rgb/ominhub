@@ -1,0 +1,111 @@
+function renderMonetizationLayout(main, user) {
+    const MonetizationLayout = `
+      <section class="section monetizacion-block">
+        <h1 class="section-title">Monetization & payouts</h1>
+        <p class="section-subtitle">
+          Configure how you want to receive payouts once your account is eligible for monetization.
+          Values shown here are for design and education only.
+        </p>
+
+        <div class="form-card creator-main-card">
+          <div class="badge badge-outline">Monetization</div>
+          <div class="monetization-grid">
+            <div class="monetization-metric">
+              <div class="metric-label">Estimated balance</div>
+              <div class="metric-value">$2,340.50</div>
+              <div class="metric-sub">Demo only · not real money</div>
+            </div>
+            <div class="monetization-metric">
+              <div class="metric-label">Last 30 days</div>
+              <div class="metric-value">$430.80</div>
+              <div class="metric-sub">Based on demo engagement</div>
+            </div>
+            <div class="monetization-metric">
+              <div class="metric-label">RPM (per 1K views)</div>
+              <div class="metric-value">$4.20</div>
+              <div class="metric-sub">Blended across all territories</div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="pay-country">Payout country</label>
+            <select id="pay-country">
+              <option value="">Select payout country</option>
+              <option value="cr">Costa Rica</option>
+              <option value="mx">México</option>
+              <option value="us">United States</option>
+              <option value="es">España</option>
+              <option value="ar">Argentina</option>
+              <option value="co">Colombia</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="pay-method">Payout method</label>
+            <select id="pay-method">
+              <option value="">Select method</option>
+              <option value="bank">Bank transfer</option>
+              <option value="wise">Wise</option>
+              <option value="crypto">Crypto (USDT/USDC)</option>
+            </select>
+          </div>
+
+          <div class="monetization-checklist">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="chk-rules" />
+              I accept the monetization rules and content policies.
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="chk-tax" />
+              I understand that I am responsible for my own taxes.
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="chk-kyc" />
+              I will keep my KYC / identity information up to date.
+            </label>
+          </div>
+
+          <button class="nav-button" type="button" id="save-monetization">Save monetization settings</button>
+          <div class="form-footer tiny" id="monetization-info"></div>
+        </div>
+      </section>
+    `;
+
+    // Render dinámico
+    main.innerHTML = MonetizationLayout;
+
+    //Debe ser aislado en una función aparte, y analizar donde pertenece cada fun
+    // Bloqueo visual real
+    /*if (!verify) {
+      const blocked = main.querySelector(".monetizacion-block");
+      if (blocked) {
+        blocked.style.pointerEvents = "none";
+        blocked.style.opacity = "0.35";
+      }
+    }*/
+
+    // Lógica monetización
+    const btn = document.getElementById("save-monetization");
+    const info = document.getElementById("monetization-info");
+
+    if (btn && info) {
+        btn.addEventListener("click", () => {
+            const country = document.getElementById("pay-country").value;
+            const method = document.getElementById("pay-method").value;
+            const rules = document.getElementById("chk-rules").checked;
+            const tax = document.getElementById("chk-tax").checked;
+            const kyc = document.getElementById("chk-kyc").checked;
+
+            if (!(country && method && rules && tax && kyc)) {
+                info.textContent =
+                    "Please complete country, method and all confirmation checkboxes.";
+                return;
+            }
+            info.textContent =
+                "Monetization preferences stored locally (demo only).";
+        });
+    }
+}
+
+export const CreatorMonetization = {
+    renderMonetizationLayout
+}
