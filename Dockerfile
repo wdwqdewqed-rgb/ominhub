@@ -7,7 +7,12 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet publish OminHub.Api/OminHub.Api.csproj -c Release -o /app/publish
+RUN dotnet restore "OminHub.Api/OminHub.Api.csproj"
+
+RUN dotnet publish "OminHub.Api/OminHub.Api.csproj" \
+    -c Release \
+    -o /app/publish \
+    /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
