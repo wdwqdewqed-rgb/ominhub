@@ -15,4 +15,14 @@
     <ProjectReference Include="..\OminHub.Core\OminHub.Core.csproj" />
     <ProjectReference Include="..\OminHub.Infrastructure\OminHub.Infrastructure.csproj" />
   </ItemGroup>
+
+<ItemGroup>
+  <None Update="appsettings.json">
+    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+  </None>
+
+  <None Update="appsettings.Development.json">
+    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
 </Project>
